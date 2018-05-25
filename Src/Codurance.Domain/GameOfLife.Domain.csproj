@@ -47,6 +47,7 @@
       <DependentUpon>ErrorMessages.resx</DependentUpon>
     </Compile>
     <Compile Include="GameOfLife.cs" />
+    <Compile Include="IGameOfLife.cs" />
     <Compile Include="Life.cs" />
     <Compile Include="LifeState.cs" />
     <Compile Include="Position.cs" />

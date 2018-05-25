@@ -95,5 +95,14 @@ namespace GameOfLife.Domain {
                 return ResourceManager.GetString("MaximumSurroundingLivesReached", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Minimum of three neighbours required to calculate vitality.
+        /// </summary>
+        internal static string NotEnoughNeighbours {
+            get {
+                return ResourceManager.GetString("NotEnoughNeighbours", resourceCulture);
+            }
+        }
     }
 }

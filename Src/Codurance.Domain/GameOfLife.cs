@@ -1,20 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using static GameOfLife.Domain.ErrorMessages;
 
 namespace GameOfLife.Domain
 {
-    //The "game" is a zero-player game, meaning that its evolution is determined by its initial state, requiring no further input.One interacts with the Game of Life by creating an initial configuration and observing how it evolves, or, for advanced "players", by creating patterns with particular properties. This is a simplified version allowing 3 distinct seeds, a diamond shape, a square, and a cross shape.
-
-    //The initial pattern constitutes the** seed** of the system.The first generation is created by applying the above rules simultaneously to every cell in the seed—births and deaths occur simultaneously, and the discrete moment at which this happens is sometimes called a** tick** (in other words, each generation is a pure function of the preceding one). The rules continue to be applied repeatedly to create further generations.
-
-    //*Conway chose his rules carefully*, after considerable experimentation, to meet these criteria:
-    //1. There should be no **explosive growth**.
-    //2. There should exist** small initial patterns** with chaotic, unpredictable outcomes.
-    //3. There should be potential for von Neumann universal constructors.
-
-
-    public class GameOfLife
+    public class GameOfLife : IGameOfLife
     {
         public const uint MINIMUM_MATRIX_SIZE = 2;
         private event EventHandler CalculateLifeExpectancies;
@@ -26,10 +17,9 @@ namespace GameOfLife.Domain
             {
                 throw new ArgumentOutOfRangeException(MatrixSizeOutOfRange);
             }
-            this.MatrixSize = matrixSize;
-            this.Initialise();
+            MatrixSize = matrixSize;
+            Initialise();
         }
-
 
         public uint MatrixSize { get; }
         public Life[,] Lives { get; private set; }
@@ -41,10 +31,13 @@ namespace GameOfLife.Domain
                 Lives[position.Column, position.Row].BringToLife();                
             }
         }
-        public void Play()
+        public void Generate()
         {
             OnCalculatingLifeExpectancies();
             OnTransferLifeStates();
+#if DEBUG
+            Debug.WriteLine(ToString()); 
+#endif
         }
 
         private void Initialise()
@@ -55,9 +48,9 @@ namespace GameOfLife.Domain
 
         private void BuildRelationships()
         {
-            for (int rowIndex = 0; rowIndex < MatrixSize; rowIndex++)
+            for (var rowIndex = 0; rowIndex < MatrixSize; rowIndex++)
             {
-                for (int columnIndex = 0; columnIndex < MatrixSize; columnIndex++)
+                for (var columnIndex = 0; columnIndex < MatrixSize; columnIndex++)
                 {
                     SetupNeighbours(Lives[columnIndex, rowIndex]);
                 }
@@ -86,7 +79,7 @@ namespace GameOfLife.Domain
             var isOnTheRight = currentColumn == MatrixSize - 1;
             if (!isOnTheTop && !isOnTheRight)
             {
-                life.AddNeighbours(this.Lives[columnToTheRight, rowAbove]);
+                life.AddNeighbours(Lives[columnToTheRight, rowAbove]);
             }
         }
 
@@ -99,7 +92,7 @@ namespace GameOfLife.Domain
 
             if (!isOnTheTop)
             {
-                life.AddNeighbours(this.Lives[currentColumn, rowAbove]);
+                life.AddNeighbours(Lives[currentColumn, rowAbove]);
             }
         }
 
@@ -113,7 +106,7 @@ namespace GameOfLife.Domain
             var isOnTheLeft = currentColumn == 0;
             if (!isOnTheLeft && !isOnTheTop)
             {
-                life.AddNeighbours(this.Lives[columnToTheLeft, rowAbove]);
+                life.AddNeighbours(Lives[columnToTheLeft, rowAbove]);
             }
         }
 
@@ -125,7 +118,7 @@ namespace GameOfLife.Domain
             var isOnTheLeft = currentColumn == 0;
             if (!isOnTheLeft)
             {
-                life.AddNeighbours(this.Lives[columnToTheLeft, currentRow]);
+                life.AddNeighbours(Lives[columnToTheLeft, currentRow]);
             }
         }
 
@@ -139,7 +132,7 @@ namespace GameOfLife.Domain
             var isOnTheBottom = currentRow == MatrixSize - 1;
             if (!isOnTheLeft && !isOnTheBottom)
             {
-                life.AddNeighbours(this.Lives[columnToTheLeft, rowBelow]);
+                life.AddNeighbours(Lives[columnToTheLeft, rowBelow]);
             }
         }
 
@@ -151,7 +144,7 @@ namespace GameOfLife.Domain
             var isOnTheBottom = currentRow == MatrixSize - 1;
             if (!isOnTheBottom)
             {
-                life.AddNeighbours(this.Lives[currentColumn, rowBelow]);
+                life.AddNeighbours(Lives[currentColumn, rowBelow]);
             }
         }
 
@@ -166,7 +159,7 @@ namespace GameOfLife.Domain
 
             if (!isOnTheRight && !isOnTheBottom)
             {
-                life.AddNeighbours(this.Lives[columnToTheRight, rowBelow]);
+                life.AddNeighbours(Lives[columnToTheRight, rowBelow]);
             }
         }
 
@@ -179,7 +172,7 @@ namespace GameOfLife.Domain
 
             if (!isOnTheRight)
             {
-                life.AddNeighbours(this.Lives[columnToTheRight, currentRow]);
+                life.AddNeighbours(Lives[columnToTheRight, currentRow]);
             }
         }
 
@@ -215,11 +208,11 @@ namespace GameOfLife.Domain
             {
                 for (var columnIndex = 0; columnIndex < MatrixSize; columnIndex++)
                 {
-                    var life = new Life(columnIndex, rowIndex);
+                    var currentLife = Lives[columnIndex, rowIndex];
                     result.AppendFormat("| [{0}]({1},{2}) |", 
-                        life.CurrentLifeState == LifeState.Alive ? '+' : '-',
-                        life.Position.Column,
-                        life.Position.Row);                    
+                        currentLife.CurrentLifeState == LifeState.Alive ? '+' : '-',
+                        currentLife.Position.Column,
+                        currentLife.Position.Row);                    
                 }
                 result.AppendLine();
             }

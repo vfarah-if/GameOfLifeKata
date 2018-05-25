@@ -129,4 +129,7 @@
   <data name="MaximumSurroundingLivesReached" xml:space="preserve">
     <value>Maximum eight surrounding lives.</value>
   </data>
+  <data name="NotEnoughNeighbours" xml:space="preserve">
+    <value>Minimum of three neighbours required to calculate vitality</value>
+  </data>
 </root>

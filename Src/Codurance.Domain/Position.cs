@@ -44,7 +44,7 @@ namespace GameOfLife.Domain
 
         public override string ToString()
         {
-            return $"Column: {this.Column}, Row: {this.Row}";
+            return $"Column: {Column}, Row: {Row}";
         }
     }
 }

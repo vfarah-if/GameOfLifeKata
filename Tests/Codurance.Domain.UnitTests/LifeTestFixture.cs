@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using AutoFixture;
-using AutoFixture.AutoMoq;
 using AutoFixture.NUnit3;
 using FluentAssertions;
 using NUnit.Framework;
@@ -10,12 +9,12 @@ using NUnit.Framework;
 namespace GameOfLife.Domain.UnitTests
 {
     // Scenarios
-    // Should validate any constructor values(Generic)
+    // (X) Should validate any constructor values(Generic)
     // (X) Should set the position in life (Generic)
     // (X) Should pass in a default life state as Dead (Generic)
     // (X) Should have a current life state (Specific)
     // (X) Should have neighbours to help with life (Specific)
-    // Should have a projected life state based on : (Specific)
+    // (X) Should have a projected life state based on : (Specific)
     //      (X) 1. Any live cell with *fewer than two live neighbours dies*, as if caused by **underpopulation**.
     //      (X) 2. Any live cell with *two or three live neighbours lives* on to the** next generation**.
     //      (X) 3. Any live cell with *more than three live neighbours dies*, as if by** overpopulation**.
@@ -178,7 +177,26 @@ namespace GameOfLife.Domain.UnitTests
                 subject = CreateLife(LifeState.Alive);
             }
 
-            // Any live cell with *fewer than two live neighbours dies*, as if caused by **underpopulation**.
+            [Test]
+            public void ShouldThrowAnArgumentOutOfRangeExceptionWhenOnlyOneNeighbourIsAdded()
+            {
+                subject.AddNeighbours(CreateLife());
+
+                Action action = () => subject.CalculateLifeExpectancy();
+
+                action.Should().Throw<ArgumentOutOfRangeException>();
+            }
+
+            [Test]
+            public void ShouldThrowAnArgumentOutOfRangeExceptionWhenOnlyTwoNeighbourIsAdded()
+            {
+                subject.AddNeighbours(CreateLife(), CreateLife());
+
+                Action action = () => subject.CalculateLifeExpectancy();
+
+                action.Should().Throw<ArgumentOutOfRangeException>();
+            }
+
             [Test]
             public void ShouldCalculateStateAsDeadWhenNeighbourUnderPopulationOccurs()
             {
@@ -191,7 +209,6 @@ namespace GameOfLife.Domain.UnitTests
 
             }
 
-            // Any live cell with *more than three live neighbours dies*, as if by** overpopulation**.
             [Test]
             public void ShouldCalculateStateAsDeadWhenNeighbourOverPopulationOccurs()
             {
@@ -203,7 +220,6 @@ namespace GameOfLife.Domain.UnitTests
                 actual.Should().Be(LifeState.Dead);
             }
 
-            //  Any live cell with *two or three live neighbours lives* on to the** next generation**.
             [Test]
             public void ShouldContinueToTheNextGenerationWhenThereAreTwoAliveNeighbours()
             {
@@ -236,16 +252,16 @@ namespace GameOfLife.Domain.UnitTests
                 subject = new Life(fixture.Create<Position>(), LifeState.Dead);
             }
 
-            // Any dead cell with *exactly three live neighbours becomes a live cell*, as if by** reproduction**. 
             [Test]
             public void ShouldReproduceALifeWhenThereAreThreeAliveSurroundingLives()
             {
                 Life[] neighbours = GetThreeAliveOnlyLives().ToArray();
                 subject.AddNeighbours(neighbours);
 
-                var actual = subject.CalculateLifeExpectancy();
+                subject.CalculateLifeExpectancy();
+                subject.TransferLifeState();
 
-                actual.Should().Be(LifeState.Alive);
+                subject.CurrentLifeState.Should().Be(LifeState.Alive);
             }
         }
     }

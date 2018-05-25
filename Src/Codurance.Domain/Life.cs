@@ -8,7 +8,9 @@ namespace GameOfLife.Domain
 {
     public class Life
     {
+        private const int MIN_NEIGHBOURCOUNT = 3;
         private readonly List<Life> neighbours = new List<Life>(8);
+        private LifeState expectedLifeState;
 
         public Life(int x, int y, LifeState currentLifeState = LifeState.Dead)
             : this(new Position(x, y), currentLifeState)
@@ -22,18 +24,17 @@ namespace GameOfLife.Domain
         }
 
         public Position Position { get; }
-        public LifeState CurrentLifeState { get; private set; }
-        internal LifeState ExpectedLifeState { get; private set; }
+        public LifeState CurrentLifeState { get; private set; }        
         public IReadOnlyList<Life> Neighbours => neighbours?.AsReadOnly();
 
         public void BringToLife()
         {
-            this.CurrentLifeState = LifeState.Alive;
+            CurrentLifeState = LifeState.Alive;
         }
 
         public void Kill()
         {
-            this.CurrentLifeState = LifeState.Dead;
+            CurrentLifeState = LifeState.Dead;
         }
 
         public void AddNeighbours(params Life[] lives)
@@ -53,39 +54,43 @@ namespace GameOfLife.Domain
 
         public Life GetNeighbour(int column, int row)
         {
-            return this.neighbours.Find(neighbour =>
+            return neighbours.Find(neighbour =>
                 neighbour.Position.Column == column && 
                 neighbour.Position.Row == row);
         }
 
         public bool HasNeighbour(int column, int row)
         {
-            return this.GetNeighbour(column, row) != null;
+            return GetNeighbour(column, row) != null;
         }
 
         public LifeState CalculateLifeExpectancy()
         {
-            // TODO: Validate minimum number of neighbours before continuing
-            ExpectedLifeState = CurrentLifeState;
+            if (Neighbours.Count < MIN_NEIGHBOURCOUNT)
+            {
+                throw new ArgumentOutOfRangeException(nameof(Neighbours), Neighbours, NotEnoughNeighbours);
+            }
+            expectedLifeState = CurrentLifeState;
             var aliveStateCount =
-                this.neighbours.Count(each => each.CurrentLifeState == LifeState.Alive);
+                neighbours.Count(each => each.CurrentLifeState == LifeState.Alive);
             if (CurrentLifeState == LifeState.Alive && (aliveStateCount < 2 || aliveStateCount > 3))
             {
-                ExpectedLifeState = LifeState.Dead;
+                expectedLifeState = LifeState.Dead;
             }
             else if (CurrentLifeState == LifeState.Dead && aliveStateCount == 3)
             {
-                ExpectedLifeState = LifeState.Alive;
+                expectedLifeState = LifeState.Alive;
             }
 
-            Debug.WriteLine($"Calculated Expected Life Status of {Enum.GetName(typeof(LifeState), ExpectedLifeState)} for {this.Position.ToString()}");
+            Debug.WriteLine($"Calculated Expected Life Status of from '{Enum.GetName(typeof(LifeState), CurrentLifeState)}'" +
+                $" to '{Enum.GetName(typeof(LifeState), expectedLifeState)} for {Position.ToString()}'");
 
-            return ExpectedLifeState;
+            return expectedLifeState;
         }
 
         public void TransferLifeState()
         {
-            this.CurrentLifeState = this.ExpectedLifeState;
+            CurrentLifeState = expectedLifeState;
         }
     }
 }

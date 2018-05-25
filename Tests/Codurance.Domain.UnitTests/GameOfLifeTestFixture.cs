@@ -2,11 +2,18 @@
 using NUnit.Framework;
 using AutoFixture;
 using FluentAssertions;
+using static System.Environment;
 
 
 namespace GameOfLife.Domain.UnitTests
 {
     // Scenarios
+    // (X) The "game" is a zero-player game, meaning that its evolution is determined by its initial state, requiring no further input.One interacts with the Game of Life by creating an initial configuration and observing how it evolves, or, for advanced "players", by creating patterns with particular properties. This is a simplified version allowing 3 distinct seeds, a diamond shape, a square, and a cross shape.
+    // (X) The initial pattern constitutes the** seed** of the system.The first generation is created by applying the above rules simultaneously to every cell in the seed—births and deaths occur simultaneously, and the discrete moment at which this happens is sometimes called a** tick** (in other words, each generation is a pure function of the preceding one). The rules continue to be applied repeatedly to create further generations.
+    // (X) *Conway chose his rules carefully*, after considerable experimentation, to meet these criteria:
+    // (X) 1. There should be no **explosive growth**.
+    // (X) 2. There should exist** small initial patterns** with chaotic, unpredictable outcomes.
+    // (X) 3. There should be potential for von Neumann universal constructors.
 
     // (X) Should create a game with a Size of the grid defining how many lives can interact with this grid or a matrix by the size of the matrix
     // (X) Should initialise the lives to dead 
@@ -15,7 +22,7 @@ namespace GameOfLife.Domain.UnitTests
     // (X) Should have a method that calculate the state of each life based on this data
     // (X) Should have a method that will change the state all at the same time once the state has changed
     // (X) Should be able to repeat this several times using seeds with expected outputs on each round
-    // Once everything working simply, run more efficiently in parallel
+    // (X) Once everything working simply, run more efficiently in parallel
     // Add more seeding examples from Wiki increasing the size of the grid and the complexity
     // Should Have an onFinished event or action to work with after it is all done
 
@@ -44,7 +51,7 @@ namespace GameOfLife.Domain.UnitTests
             [SetUp]
             public void SetupTheGameAndMatrix()
             {
-                this.matrixSize = GameOfLife.MINIMUM_MATRIX_SIZE + fixture.Create<uint>();
+                matrixSize = GameOfLife.MINIMUM_MATRIX_SIZE + fixture.Create<uint>();
                 subject = new GameOfLife(matrixSize);
             }
 
@@ -62,7 +69,7 @@ namespace GameOfLife.Domain.UnitTests
 
                 action.Should().Throw<ArgumentOutOfRangeException>()
                     .WithMessage("Specified argument was out of the range of valid values."
-                                 +Environment.NewLine +
+                                 +NewLine +
                                 "Parameter name: Life can not thrive in such a small eco system.");
             }
 
@@ -90,20 +97,9 @@ namespace GameOfLife.Domain.UnitTests
             [SetUp]
             public void SetupTheGameAndMatrix()
             {
-                this.matrixSize = 3;
+                matrixSize = 3;
                 subject = new GameOfLife(matrixSize);
             }
-
-
-            // TODO: Create a visual way of testing and representing this, easy to see
-
-            // | 0,0 | 1,0 | 2,0 | 
-            // | ---   ---   --- | 
-            // | 0,1 | 1,1 | 2,1 | 
-            // | ---   ---   --- | 
-            // | 0,2 | 1,2 | 2,2 | 
-
-            // [+](0,0) | [+](1,0) | [+](2,0)
         }
 
         [TestFixture]
@@ -298,27 +294,16 @@ namespace GameOfLife.Domain.UnitTests
         }
 
         [TestFixture]
-        public class AndSeedingDataByConfiguringTheBlinkerOscilattorData : WhenPlayingGameOfLife
+        public class AndSeedingDataByConfiguringTheBlinkerOscilattorPattern : WhenPlayingGameOfLife
         {
-            // 0,0 | 1,0 | 2,0 | 3,0 | 4,0 
-            // ---   ---   ---   ---   --- 
-            // 0,1 | 1,1 | 2,1 | 3,1 | 4,1 
-            // ---   ---   ---   ---   --- 
-            // 0,2 | 1,2 | 2,2 | 3,2 | 4,2 
-            // ---   ---   ---   ---   --- 
-            // 0,3 | 1,3 | 2,3 | 3,3 | 4,3 
-            // ---   ---   ---   ---   --- 
-            // 0,4 | 1,4 | 2,4 | 3,4 | 4,4 
-
             [SetUp]
             public void SetupTheGameWithAFiveByFiveLifeMatrixAndBlinkerSeed()
             {
-                this.matrixSize = 5;
+                matrixSize = 5;
                 subject = new GameOfLife(matrixSize);
                 ShouldHaveADeadHorizontalBlink();
                 subject.SeedLife(new Position(1, 2), new Position(2, 2), new Position(3, 2));
             }
-
 
             [Test]
             public void ShouldSeedLifeByBlinkerPositions()
@@ -339,51 +324,68 @@ namespace GameOfLife.Domain.UnitTests
             [Test]
             public void ShouldCalculateLifeExpectancyBasedOnOneOscilationInANonChaoticWay()
             {
-                subject.Play();
+                subject.Generate();
 
-                subject.Lives[1, 2].CurrentLifeState.Should().Be(LifeState.Dead);
-                subject.Lives[2, 1].CurrentLifeState.Should().Be(LifeState.Alive);
-                subject.Lives[2, 2].CurrentLifeState.Should().Be(LifeState.Alive);
-                subject.Lives[2, 3].CurrentLifeState.Should().Be(LifeState.Alive);
-                subject.Lives[3, 2].CurrentLifeState.Should().Be(LifeState.Dead);
+                ShouldHaveAnAliveVerticalBlink();
             }
 
             [Test]
             public void ShouldCalculateLifeExpectancyBasedOnThreeOscilationsInANonChaoticWay()
             {
-                subject.Play();
+                subject.Generate();
                 ShouldHaveAnAliveVerticalBlink();
 
-                subject.Play();
+                subject.Generate();
 
                 ShouldHaveAnAliveHorizontalBlink();
 
-                subject.Play();
+                subject.Generate();
 
                 ShouldHaveAnAliveVerticalBlink();
             }
 
             private void ShouldHaveAnAliveVerticalBlink()
             {
-                subject.Lives[1, 2].CurrentLifeState.Should().Be(LifeState.Dead);
+                var expectedGridLayout =
+                    "| [-](0,0) || [-](1,0) || [-](2,0) || [-](3,0) || [-](4,0) |" + NewLine +
+                    "| [-](0,1) || [-](1,1) || [+](2,1) || [-](3,1) || [-](4,1) |" + NewLine +
+                    "| [-](0,2) || [-](1,2) || [+](2,2) || [-](3,2) || [-](4,2) |" + NewLine +
+                    "| [-](0,3) || [-](1,3) || [+](2,3) || [-](3,3) || [-](4,3) |" + NewLine +
+                    "| [-](0,4) || [-](1,4) || [-](2,4) || [-](3,4) || [-](4,4) |" + NewLine;
                 subject.Lives[2, 1].CurrentLifeState.Should().Be(LifeState.Alive);
                 subject.Lives[2, 2].CurrentLifeState.Should().Be(LifeState.Alive);
                 subject.Lives[2, 3].CurrentLifeState.Should().Be(LifeState.Alive);
-                subject.Lives[3, 2].CurrentLifeState.Should().Be(LifeState.Dead);
+                subject.ToString().Should().Be(expectedGridLayout);
             }
 
             private void ShouldHaveADeadHorizontalBlink()
             {
+                var expectedGridLayout =
+                    "| [-](0,0) || [-](1,0) || [-](2,0) || [-](3,0) || [-](4,0) |" + NewLine +
+                    "| [-](0,1) || [-](1,1) || [-](2,1) || [-](3,1) || [-](4,1) |" + NewLine +
+                    "| [-](0,2) || [-](1,2) || [-](2,2) || [-](3,2) || [-](4,2) |" + NewLine +
+                    "| [-](0,3) || [-](1,3) || [-](2,3) || [-](3,3) || [-](4,3) |" + NewLine +
+                    "| [-](0,4) || [-](1,4) || [-](2,4) || [-](3,4) || [-](4,4) |" + NewLine;
+
                 subject.Lives[1, 2].CurrentLifeState.Should().Be(LifeState.Dead);
                 subject.Lives[2, 2].CurrentLifeState.Should().Be(LifeState.Dead);
                 subject.Lives[3, 2].CurrentLifeState.Should().Be(LifeState.Dead);
+                subject.ToString().Should().Be(expectedGridLayout);
             }
 
             private void ShouldHaveAnAliveHorizontalBlink()
             {
+                var expectedGridLayout =
+                    "| [-](0,0) || [-](1,0) || [-](2,0) || [-](3,0) || [-](4,0) |" + NewLine +
+                    "| [-](0,1) || [-](1,1) || [-](2,1) || [-](3,1) || [-](4,1) |" + NewLine +
+                    "| [-](0,2) || [+](1,2) || [+](2,2) || [+](3,2) || [-](4,2) |" + NewLine +
+                    "| [-](0,3) || [-](1,3) || [-](2,3) || [-](3,3) || [-](4,3) |" + NewLine +
+                    "| [-](0,4) || [-](1,4) || [-](2,4) || [-](3,4) || [-](4,4) |" + NewLine;
+
                 subject.Lives[1, 2].CurrentLifeState.Should().Be(LifeState.Alive);
                 subject.Lives[2, 2].CurrentLifeState.Should().Be(LifeState.Alive);
                 subject.Lives[3, 2].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.ToString().Should().Be(expectedGridLayout);
             }
         }
     }
