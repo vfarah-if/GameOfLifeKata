@@ -15,12 +15,10 @@ namespace GameOfLife.Domain
 
 
     public class GameOfLife
-        //: IDisposable
     {
         public const uint MINIMUM_MATRIX_SIZE = 2;
         private event EventHandler CalculateLifeExpectancies;
         private event EventHandler TransferLifeStates;
-        //private bool disposed;
 
         public GameOfLife(uint matrixSize)
         {
@@ -31,11 +29,6 @@ namespace GameOfLife.Domain
             this.MatrixSize = matrixSize;
             this.Initialise();
         }
-
-        //~GameOfLife()
-        //{
-        //    Dispose(false);
-        //}
 
 
         public uint MatrixSize { get; }
@@ -233,45 +226,5 @@ namespace GameOfLife.Domain
 
             return result.ToString();
         }
-
-        //TODO: Figure out if I need to dispose this after some good reading
-
-        //private void ReleaseEvents()
-        //{
-        //    if (CalculateLifeExpectancies != null)
-        //    {
-        //        foreach (var @delegate in CalculateLifeExpectancies.GetInvocationList())
-        //        {
-        //            CalculateLifeExpectancies -= (EventHandler) @delegate;
-        //        }
-        //    }
-
-        //    if (TransferLifeStates != null)
-        //    {
-        //        foreach (var @delegate in TransferLifeStates.GetInvocationList())
-        //        {
-        //            TransferLifeStates -= (EventHandler)@delegate;
-        //        }
-        //    }
-        //}
-
-        //public void Dispose()
-        //{
-        //    Dispose(true);
-        //    GC.SuppressFinalize(this);
-        //}
-
-        //protected virtual void Dispose(bool disposing)
-        //{
-        //    if (disposed)
-        //        return;
-
-        //    if (disposing)
-        //    {
-        //        ReleaseEvents();
-        //    }
-
-        //    disposed = true;
-        //}
     }
 }

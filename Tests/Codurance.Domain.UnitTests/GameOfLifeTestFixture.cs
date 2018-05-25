@@ -48,14 +48,6 @@ namespace GameOfLife.Domain.UnitTests
                 subject = new GameOfLife(matrixSize);
             }
 
-            [TearDown]
-            public void DisposeTheGame()
-            {
-                //subject.Dispose();
-                subject = null;
-            }
-
-
             [Test]
             public void ShouldSetTheMatrixByTheConstranedSize()
             {
@@ -100,13 +92,6 @@ namespace GameOfLife.Domain.UnitTests
             {
                 this.matrixSize = 3;
                 subject = new GameOfLife(matrixSize);
-            }
-
-            [TearDown]
-            public void DisposeTheGame()
-            {
-                //subject.Dispose();
-                subject = null;
             }
 
 
@@ -334,12 +319,6 @@ namespace GameOfLife.Domain.UnitTests
                 subject.SeedLife(new Position(1, 2), new Position(2, 2), new Position(3, 2));
             }
 
-            [TearDown]
-            public void DisposeTheGame()
-            {
-                //subject.Dispose();
-                subject = null;
-            }
 
             [Test]
             public void ShouldSeedLifeByBlinkerPositions()
