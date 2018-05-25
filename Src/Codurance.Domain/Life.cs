@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using static GameOfLife.Domain.ErrorMessages;
 
@@ -77,7 +78,14 @@ namespace GameOfLife.Domain
                 ExpectedLifeState = LifeState.Alive;
             }
 
+            Debug.WriteLine($"Calculated Expected Life Status of {Enum.GetName(typeof(LifeState), ExpectedLifeState)} for {this.Position.ToString()}");
+
             return ExpectedLifeState;
+        }
+
+        public void TransferLifeState()
+        {
+            this.CurrentLifeState = this.ExpectedLifeState;
         }
     }
 }

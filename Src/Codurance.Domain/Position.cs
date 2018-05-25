@@ -15,7 +15,7 @@ namespace GameOfLife.Domain
 
         public override bool Equals(object obj)
         {
-            return obj is Position && Equals((Position)obj);
+            return obj is Position && Equals((Position) obj);
         }
 
         public bool Equals(Position other)
@@ -40,6 +40,11 @@ namespace GameOfLife.Domain
         public static bool operator !=(Position position1, Position position2)
         {
             return !(position1 == position2);
+        }
+
+        public override string ToString()
+        {
+            return $"Column: {this.Column}, Row: {this.Row}";
         }
     }
 }

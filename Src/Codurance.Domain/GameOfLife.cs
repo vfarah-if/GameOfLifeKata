@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using static GameOfLife.Domain.ErrorMessages;
 
 namespace GameOfLife.Domain
@@ -14,8 +15,12 @@ namespace GameOfLife.Domain
 
 
     public class GameOfLife
+        //: IDisposable
     {
         public const uint MINIMUM_MATRIX_SIZE = 2;
+        private event EventHandler CalculateLifeExpectancies;
+        private event EventHandler TransferLifeStates;
+        //private bool disposed;
 
         public GameOfLife(uint matrixSize)
         {
@@ -27,6 +32,12 @@ namespace GameOfLife.Domain
             this.Initialise();
         }
 
+        //~GameOfLife()
+        //{
+        //    Dispose(false);
+        //}
+
+
         public uint MatrixSize { get; }
         public Life[,] Lives { get; private set; }
 
@@ -36,6 +47,11 @@ namespace GameOfLife.Domain
             {
                 Lives[position.Column, position.Row].BringToLife();                
             }
+        }
+        public void Play()
+        {
+            OnCalculatingLifeExpectancies();
+            OnTransferLifeStates();
         }
 
         private void Initialise()
@@ -62,7 +78,7 @@ namespace GameOfLife.Domain
             AddNeighbourBelow(life);
             AddNeighbourBelowLeftDiagnol(life);
             AddNeighbourToTheLeft(life);
-            AddNeighbourOnTheAboveDiagonal(life);
+            AddNeighbourOnTheAboveLeftDiagonal(life);
             AddNeighbourAbove(life);
             AddNeighbourOnTheAboveRightDiagonal(life);
         }
@@ -94,7 +110,7 @@ namespace GameOfLife.Domain
             }
         }
 
-        private void AddNeighbourOnTheAboveDiagonal(Life life)
+        private void AddNeighbourOnTheAboveLeftDiagonal(Life life)
         {
             var currentColumn = life.Position.Column;
             var currentRow = life.Position.Row;
@@ -181,23 +197,81 @@ namespace GameOfLife.Domain
             {
                 for (var columnIndex = 0; columnIndex < MatrixSize; columnIndex++)
                 {
-                    Lives[columnIndex, rowIndex] = new Life(columnIndex, rowIndex);
+                    var newLife = new Life(columnIndex, rowIndex);
+                    Lives[columnIndex, rowIndex] = newLife;
+                    CalculateLifeExpectancies += (sender, args) => newLife.CalculateLifeExpectancy();
+                    TransferLifeStates += (sender, args) => newLife.TransferLifeState();
                 }
             }
         }
 
-        //TODO: Create a visual way of seeing this
-        //public override string ToString()
+        protected virtual void OnCalculatingLifeExpectancies()
+        {
+            CalculateLifeExpectancies?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnTransferLifeStates()
+        {
+            TransferLifeStates?.Invoke(this, EventArgs.Empty);
+        }
+
+        public override string ToString()
+        {
+            var result = new StringBuilder();            
+            for (var rowIndex = 0; rowIndex < MatrixSize; rowIndex++)
+            {
+                for (var columnIndex = 0; columnIndex < MatrixSize; columnIndex++)
+                {
+                    var life = new Life(columnIndex, rowIndex);
+                    result.AppendFormat("| [{0}]({1},{2}) |", 
+                        life.CurrentLifeState == LifeState.Alive ? '+' : '-',
+                        life.Position.Column,
+                        life.Position.Row);                    
+                }
+                result.AppendLine();
+            }
+
+            return result.ToString();
+        }
+
+        //TODO: Figure out if I need to dispose this after some good reading
+
+        //private void ReleaseEvents()
         //{
-        //    StringBuilder result = new StringBuilder();
-        //    //  --- --- ---
-        //    // | X |   |   |
-        //    //  --- --- ---
-        //    // |   | X | X |
-        //    //  --- --- ---
-        //    // |   |   |   |
-        //    //  --- --- ---
-        //    return result.ToString();
+        //    if (CalculateLifeExpectancies != null)
+        //    {
+        //        foreach (var @delegate in CalculateLifeExpectancies.GetInvocationList())
+        //        {
+        //            CalculateLifeExpectancies -= (EventHandler) @delegate;
+        //        }
+        //    }
+
+        //    if (TransferLifeStates != null)
+        //    {
+        //        foreach (var @delegate in TransferLifeStates.GetInvocationList())
+        //        {
+        //            TransferLifeStates -= (EventHandler)@delegate;
+        //        }
+        //    }
+        //}
+
+        //public void Dispose()
+        //{
+        //    Dispose(true);
+        //    GC.SuppressFinalize(this);
+        //}
+
+        //protected virtual void Dispose(bool disposing)
+        //{
+        //    if (disposed)
+        //        return;
+
+        //    if (disposing)
+        //    {
+        //        ReleaseEvents();
+        //    }
+
+        //    disposed = true;
         //}
     }
 }
