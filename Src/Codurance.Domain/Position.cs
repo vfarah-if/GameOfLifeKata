@@ -4,13 +4,13 @@ namespace GameOfLife.Domain
 {
     public struct Position : IEquatable<Position>
     {
-        public int X { get; }
-        public int Y { get; }
+        public int Column { get; }
+        public int Row { get; }
 
-        public Position(int x, int y)
+        public Position(int column, int row)
         {
-            X = x;
-            Y = y;
+            Column = column;
+            Row = row;
         }
 
         public override bool Equals(object obj)
@@ -20,15 +20,15 @@ namespace GameOfLife.Domain
 
         public bool Equals(Position other)
         {
-            return X == other.X &&
-                   Y == other.Y;
+            return Column == other.Column &&
+                   Row == other.Row;
         }
 
         public override int GetHashCode()
         {
             var hashCode = 1861411795;
-            hashCode = hashCode * -1521134295 + X.GetHashCode();
-            hashCode = hashCode * -1521134295 + Y.GetHashCode();
+            hashCode = hashCode * -1521134295 + Column.GetHashCode();
+            hashCode = hashCode * -1521134295 + Row.GetHashCode();
             return hashCode;
         }
 

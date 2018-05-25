@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.NUnit3;
@@ -33,18 +30,18 @@ namespace GameOfLife.Domain.UnitTests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            fixture = new Fixture().Customize(new AutoMoqCustomization());
+            fixture = new Fixture();
         }
 
-        [TearDown]
-        public void TearDown()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             fixture = null;
         }
 
         [Test, AutoData]
         public void ShouldSetItsPositionInLife(Position position)
-        {
+        { 
             subject = new Life(position);
 
             subject.Position.Should().Be(position);
@@ -66,12 +63,45 @@ namespace GameOfLife.Domain.UnitTests
             subject.CurrentLifeState.Should().Be(LifeState.Dead);
         }
 
+        private Life CreateLife(LifeState lifeState = LifeState.Dead)
+        {
+            var x = fixture.Create<int>();
+            var y = fixture.Create<int>();
+            return new Life(x, y, lifeState);
+        }
+
         private IEnumerable<Life> GetThreeAliveOnlyLives()
         {
-            yield return new Life(fixture.Create<Position>(), LifeState.Alive);
-            yield return new Life(fixture.Create<Position>(), LifeState.Alive);
-            yield return new Life(fixture.Create<Position>(), LifeState.Alive);
-            yield return new Life(fixture.Create<Position>());
+            yield return CreateLife(LifeState.Alive);
+            yield return CreateLife(LifeState.Alive);
+            yield return CreateLife(LifeState.Alive);
+            yield return CreateLife();
+        }
+
+
+        private IEnumerable<Life> GetTwoAliveOnlyLives()
+        {
+            yield return CreateLife(LifeState.Alive);
+            yield return CreateLife(LifeState.Alive);
+            yield return CreateLife();
+            yield return CreateLife();
+        }
+
+        private IEnumerable<Life> GetMoreThanThreeALiveOnlyLives()
+        {
+            yield return CreateLife(LifeState.Alive);
+            yield return CreateLife(LifeState.Alive);
+            yield return CreateLife(LifeState.Alive);
+            yield return CreateLife(LifeState.Alive);
+            yield return CreateLife();
+            yield return CreateLife();
+        }
+
+        private IEnumerable<Life> GetOneALiveOnlyLives()
+        {
+            yield return CreateLife(LifeState.Alive);
+            yield return CreateLife();
+            yield return CreateLife();
         }
 
         [TestFixture]
@@ -81,8 +111,7 @@ namespace GameOfLife.Domain.UnitTests
             [SetUp]
             public void SetupPositionAndTest()
             {
-                var position = fixture.Create<Position>();
-                subject = new Life(position);
+                subject = CreateLife(LifeState.Dead);
             }
 
             [Test]
@@ -111,17 +140,17 @@ namespace GameOfLife.Domain.UnitTests
             public void SetupSurroundingLifesAndTest()
             {
                 surroundingLives = fixture.CreateMany<Life>().ToArray();
-                subject = fixture.Create<Life>();
+                subject = CreateLife();
             }
 
             [Test]
-            public void ShouldAddSurroundingLives()
+            public void ShouldAddNeighbours()
             {
-                subject.AddSurroundingLives(surroundingLives);
+                subject.AddNeighbours(surroundingLives);
 
                 foreach (var surroundingLife in surroundingLives)
                 {
-                    subject.SurroundingLives.Should().Contain(surroundingLife);
+                    subject.Neighbours.Should().Contain(surroundingLife);
                 }
             }
 
@@ -129,11 +158,11 @@ namespace GameOfLife.Domain.UnitTests
             public void ShouldThrowNotSupportedExceptionStatingSupportForMaximumEightSurroundingLives()
             {
                 var nineSurroundingLives = new Life[] {
-                    fixture.Create<Life>(), fixture.Create<Life>(), fixture.Create<Life>() ,
-                    fixture.Create<Life>(), fixture.Create<Life>() , fixture.Create<Life>(),
-                    fixture.Create<Life>(), fixture.Create<Life>() , fixture.Create<Life>() };
+                        CreateLife(), CreateLife(), CreateLife() ,
+                        CreateLife(), CreateLife(), CreateLife() ,
+                        CreateLife(), CreateLife(), CreateLife() };
 
-                Action action = () => subject.AddSurroundingLives(nineSurroundingLives);
+                Action action = () => subject.AddNeighbours(nineSurroundingLives);
 
                 action.Should().Throw<NotSupportedException>().WithMessage("Maximum eight surrounding lives");
             }
@@ -143,19 +172,19 @@ namespace GameOfLife.Domain.UnitTests
         public class AndCalculatingTheLifeExpectancyOfALivingLife : WhenUsingALifeToPlayGameOfLife
         {
             [SetUp]
-            public void SetupLifeWithAliveStatus()
+            public void SetupLifeWithAliveState()
             {
-                subject = new Life(fixture.Create<Position>(), LifeState.Alive);
+                subject = CreateLife(LifeState.Alive);
             }
 
             // Any live cell with *fewer than two live neighbours dies*, as if caused by **underpopulation**.
             [Test]
-            public void ShouldCalculateStateAsDeadWhenUnderPopulationOccurs()
+            public void ShouldCalculateStateAsDeadWhenNeighbourUnderPopulationOccurs()
             {
-                Life[] surroundLives = GetOneALiveOnlyLives().ToArray();
-                subject.AddSurroundingLives(surroundLives);
+                Life[] neighbours = GetOneALiveOnlyLives().ToArray();
+                subject.AddNeighbours(neighbours);
 
-                var actual = subject.CalculateLifeExpectency();
+                var actual = subject.CalculateLifeExpectancy();
 
                 actual.Should().Be(LifeState.Dead);
 
@@ -163,62 +192,37 @@ namespace GameOfLife.Domain.UnitTests
 
             // Any live cell with *more than three live neighbours dies*, as if by** overpopulation**.
             [Test]
-            public void ShouldCalculateStateAsDeadWhenOverPopulationOccurs()
+            public void ShouldCalculateStateAsDeadWhenNeighbourOverPopulationOccurs()
             {
-                Life[] surroundLives = GetMoreThanThreeALiveOnlyLives().ToArray();
-                subject.AddSurroundingLives(surroundLives);
+                Life[] neighbours = GetMoreThanThreeALiveOnlyLives().ToArray();
+                subject.AddNeighbours(neighbours);
 
-                var actual = subject.CalculateLifeExpectency();
+                var actual = subject.CalculateLifeExpectancy();
 
                 actual.Should().Be(LifeState.Dead);
             }
 
             //  Any live cell with *two or three live neighbours lives* on to the** next generation**.
             [Test]
-            public void ShouldContinueToTheNextGenerationWhenThereAreTwoAliveSurroundingLives()
+            public void ShouldContinueToTheNextGenerationWhenThereAreTwoAliveNeighbours()
             {
-                Life[] surroundLives = GetTwoAliveOnlyLives().ToArray();
-                subject.AddSurroundingLives(surroundLives);
+                Life[] neighbours = GetTwoAliveOnlyLives().ToArray();
+                subject.AddNeighbours(neighbours);
 
-                var actual = subject.CalculateLifeExpectency();
+                var actual = subject.CalculateLifeExpectancy();
 
                 actual.Should().Be(LifeState.Alive);
             }
 
             [Test]
-            public void ShouldContinueToTheNextGenerationWhenThereAreThreeAliveSurroundingLives()
+            public void ShouldContinueToTheNextGenerationWhenThereAreThreeAliveNeighbours()
             {
-                Life[] surroundLives = GetThreeAliveOnlyLives().ToArray();
-                subject.AddSurroundingLives(surroundLives);
+                Life[] neighbours = GetThreeAliveOnlyLives().ToArray();
+                subject.AddNeighbours(neighbours);
 
-                var actual = subject.CalculateLifeExpectency();
+                var actual = subject.CalculateLifeExpectancy();
 
                 actual.Should().Be(LifeState.Alive);
-            }
-
-            private IEnumerable<Life> GetTwoAliveOnlyLives()
-            {
-                yield return new Life(fixture.Create<Position>(), LifeState.Alive);
-                yield return new Life(fixture.Create<Position>(), LifeState.Alive);
-                yield return new Life(fixture.Create<Position>());
-                yield return new Life(fixture.Create<Position>());
-            }
-
-            private IEnumerable<Life> GetMoreThanThreeALiveOnlyLives()
-            {
-                yield return new Life(fixture.Create<Position>(), LifeState.Alive);
-                yield return new Life(fixture.Create<Position>(), LifeState.Alive);
-                yield return new Life(fixture.Create<Position>(), LifeState.Alive);
-                yield return new Life(fixture.Create<Position>(), LifeState.Alive);
-                yield return new Life(fixture.Create<Position>());
-                yield return new Life(fixture.Create<Position>());
-            }
-
-            private IEnumerable<Life> GetOneALiveOnlyLives()
-            {
-                yield return new Life(fixture.Create<Position>(), LifeState.Alive);
-                yield return new Life(fixture.Create<Position>());
-                yield return new Life(fixture.Create<Position>());
             }
         }
 
@@ -235,13 +239,13 @@ namespace GameOfLife.Domain.UnitTests
             [Test]
             public void ShouldReproduceALifeWhenThereAreThreeAliveSurroundingLives()
             {
-                Life[] surroundLives = GetThreeAliveOnlyLives().ToArray();
-                subject.AddSurroundingLives(surroundLives);
+                Life[] neighbours = GetThreeAliveOnlyLives().ToArray();
+                subject.AddNeighbours(neighbours);
 
-                var actual = subject.CalculateLifeExpectency();
+                var actual = subject.CalculateLifeExpectancy();
 
                 actual.Should().Be(LifeState.Alive);
             }
         }
     }
-  }
+}

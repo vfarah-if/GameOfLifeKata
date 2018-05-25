@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static GameOfLife.Domain.ErrorMessages;
 
 namespace GameOfLife.Domain
 {
     public class Life
     {
-        private readonly List<Life> surroundingLives = new List<Life>(8);
+        private readonly List<Life> neighbours = new List<Life>(8);
+
+        public Life(int x, int y, LifeState currentLifeState = LifeState.Dead)
+            : this(new Position(x, y), currentLifeState)
+        {
+        }
 
         public Life(Position position, LifeState currentLifeState = LifeState.Dead)
         {
@@ -19,7 +23,7 @@ namespace GameOfLife.Domain
         public Position Position { get; }
         public LifeState CurrentLifeState { get; private set; }
         internal LifeState ExpectedLifeState { get; private set; }
-        public IReadOnlyList<Life> SurroundingLives => surroundingLives?.AsReadOnly();
+        public IReadOnlyList<Life> Neighbours => neighbours?.AsReadOnly();
 
         public void BringToLife()
         {
@@ -31,26 +35,39 @@ namespace GameOfLife.Domain
             this.CurrentLifeState = LifeState.Dead;
         }
 
-        public void AddSurroundingLives(params Life[] lives)
+        public void AddNeighbours(params Life[] lives)
         {
             if (lives.Length == 0)
             {
-                throw new ArgumentException("Value cannot be an empty collection.", nameof(lives));
+                throw new ArgumentException(EmptyCollection, nameof(lives));
             }
 
-            if (surroundingLives.Count + lives.Length > 8)
+            if (neighbours.Count + lives.Length > 8)
             {
-                throw new NotSupportedException("Maximum eight surrounding lives");
+                throw new NotSupportedException(MaximumSurroundingLivesReached);
             }
 
-            surroundingLives.AddRange(lives);
+            neighbours.AddRange(lives);
         }
 
-        public LifeState CalculateLifeExpectency()
+        public Life GetNeighbour(int column, int row)
         {
+            return this.neighbours.Find(neighbour =>
+                neighbour.Position.Column == column && 
+                neighbour.Position.Row == row);
+        }
+
+        public bool HasNeighbour(int column, int row)
+        {
+            return this.GetNeighbour(column, row) != null;
+        }
+
+        public LifeState CalculateLifeExpectancy()
+        {
+            // TODO: Validate minimum number of neighbours before continuing
             ExpectedLifeState = CurrentLifeState;
-            int aliveStateCount =
-                this.surroundingLives.Count(each => each.CurrentLifeState == LifeState.Alive);
+            var aliveStateCount =
+                this.neighbours.Count(each => each.CurrentLifeState == LifeState.Alive);
             if (CurrentLifeState == LifeState.Alive && (aliveStateCount < 2 || aliveStateCount > 3))
             {
                 ExpectedLifeState = LifeState.Dead;
