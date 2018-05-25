@@ -120,10 +120,13 @@
   <data name="EmptyCollection" xml:space="preserve">
     <value>Value cannot be an empty collection.</value>
   </data>
+  <data name="IndexOutOfBounds" xml:space="preserve">
+    <value>Index was outside the bounds of the array.</value>
+  </data>
   <data name="MatrixSizeOutOfRange" xml:space="preserve">
-    <value>Life can not thrive in such a small eco system</value>
+    <value>Life can not thrive in such a small eco system.</value>
   </data>
   <data name="MaximumSurroundingLivesReached" xml:space="preserve">
-    <value>Maximum eight surrounding lives</value>
+    <value>Maximum eight surrounding lives.</value>
   </data>
 </root>

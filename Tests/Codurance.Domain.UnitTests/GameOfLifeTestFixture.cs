@@ -14,7 +14,7 @@ namespace GameOfLife.Domain.UnitTests
     // (X) Should create a game with a Size of the grid defining how many lives can interact with this grid or a matrix by the size of the matrix
     // (X) Should initialise the lives to dead 
     // (X) Should build all the relationships based on the position of the matrix
-    // Should have a seeding method that can generate some chaotic data
+    // (X) Should have a seeding method that can generate some chaotic data
     // Should have a method that calculate the state of each life based on this data
     // Should have a method that will change the state all at the same time once the state has changed
     // Should be able to repeat this several times using seeds with expected outputs on each round
@@ -65,7 +65,7 @@ namespace GameOfLife.Domain.UnitTests
                 action.Should().Throw<ArgumentOutOfRangeException>()
                     .WithMessage("Specified argument was out of the range of valid values."
                                  +Environment.NewLine +
-                                "Parameter name: Life can not thrive in such a small eco system");
+                                "Parameter name: Life can not thrive in such a small eco system.");
             }
 
 
@@ -104,7 +104,6 @@ namespace GameOfLife.Domain.UnitTests
             // ---   ---   ---
             // 0,2 | 1,2 | 2,2
         }
-
 
         [TestFixture]
         public class AndValidatingTheTopRow : AndBuildingTheRelationshipsWithinEachLife
@@ -294,6 +293,51 @@ namespace GameOfLife.Domain.UnitTests
                 hasLeftTopDiagonalPosition.Should().BeTrue();
                 hasTopPosition.Should().BeTrue();
                 hasTopRightDiagonalPosition.Should().BeTrue();
+            }
+        }
+
+        [TestFixture]
+        public class AndSeedingDataByConfiguringTheBlinkerOscilattorData : WhenPlayingGameOfLife
+        {
+            [SetUp]
+            public void SetupTheGameWithAFiveByFiveLifeMatrix()
+            {
+                this.matrixSize = 5;
+                subject = new GameOfLife(matrixSize);
+            }
+
+            // 0,0 | 1,0 | 2,0 | 3,0 | 4,0 
+            // ---   ---   ---   ---   --- 
+            // 0,1 | 1,1 | 2,1 | 3,1 | 4,1 
+            // ---   ---   ---   ---   --- 
+            // 0,2 | 1,2 | 2,2 | 3,2 | 4,2 
+            // ---   ---   ---   ---   --- 
+            // 0,3 | 1,3 | 2,3 | 3,3 | 4,3 
+            // ---   ---   ---   ---   --- 
+            // 0,4 | 1,4 | 2,4 | 3,4 | 4,4 
+
+            [Test]
+            public void ShouldSeedLifeByPositions()
+            {
+                subject.Lives[1, 2].CurrentLifeState.Should().Be(LifeState.Dead);
+                subject.Lives[2, 2].CurrentLifeState.Should().Be(LifeState.Dead);
+                subject.Lives[3, 2].CurrentLifeState.Should().Be(LifeState.Dead);
+
+                subject.SeedLife(new Position(1, 2), new Position(2, 2), new Position(3, 2));
+
+                subject.Lives[1, 2].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Lives[2, 2].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Lives[3, 2].CurrentLifeState.Should().Be(LifeState.Alive);
+            }
+
+            [Test]
+            public void ShouldThrowIndexOutOfRangeExceptionForPositionsThatDoNotExist()
+            {
+                Action action = () => subject.SeedLife(new Position(5, 5));
+
+                action.Should()
+                    .Throw<IndexOutOfRangeException>()
+                    .WithMessage("Index was outside the bounds of the array.");
             }
         }
     }

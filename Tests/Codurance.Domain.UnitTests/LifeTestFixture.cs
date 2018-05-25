@@ -164,7 +164,7 @@ namespace GameOfLife.Domain.UnitTests
 
                 Action action = () => subject.AddNeighbours(nineSurroundingLives);
 
-                action.Should().Throw<NotSupportedException>().WithMessage("Maximum eight surrounding lives");
+                action.Should().Throw<NotSupportedException>().WithMessage("Maximum eight surrounding lives.");
             }
         }
 

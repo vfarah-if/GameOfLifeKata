@@ -30,6 +30,14 @@ namespace GameOfLife.Domain
         public uint MatrixSize { get; }
         public Life[,] Lives { get; private set; }
 
+        public void SeedLife(params Position[] positions)
+        {
+            foreach (var position in positions)
+            {
+                Lives[position.Column, position.Row].BringToLife();                
+            }
+        }
+
         private void Initialise()
         {
             InitialiseLives();

@@ -70,7 +70,16 @@ namespace GameOfLife.Domain {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Life can not thrive in such a small eco system.
+        ///   Looks up a localized string similar to Index was outside the bounds of the array..
+        /// </summary>
+        internal static string IndexOutOfBounds {
+            get {
+                return ResourceManager.GetString("IndexOutOfBounds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Life can not thrive in such a small eco system..
         /// </summary>
         internal static string MatrixSizeOutOfRange {
             get {
@@ -79,7 +88,7 @@ namespace GameOfLife.Domain {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Maximum eight surrounding lives.
+        ///   Looks up a localized string similar to Maximum eight surrounding lives..
         /// </summary>
         internal static string MaximumSurroundingLivesReached {
             get {
