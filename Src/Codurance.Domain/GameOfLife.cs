@@ -42,73 +42,127 @@ namespace GameOfLife.Domain
             {
                 for (int columnIndex = 0; columnIndex < MatrixSize; columnIndex++)
                 {
-                    ConfigureNeighbours(Lives[columnIndex, rowIndex]);
+                    SetupNeighbours(Lives[columnIndex, rowIndex]);
                 }
             }
         }
 
-        // TODO: Reduce the size and complexity
-        private void ConfigureNeighbours(Life life)
+        private void SetupNeighbours(Life life)
+        {          
+            AddNeighbourOnTheRight(life);
+            AddNeighbourOnTheBelowRightDiagonal(life);
+            AddNeighbourBelow(life);
+            AddNeighbourBelowLeftDiagnol(life);
+            AddNeighbourToTheLeft(life);
+            AddNeighbourOnTheAboveDiagonal(life);
+            AddNeighbourAbove(life);
+            AddNeighbourOnTheAboveRightDiagonal(life);
+        }
+
+        private void AddNeighbourOnTheAboveRightDiagonal(Life life)
         {
             var currentColumn = life.Position.Column;
             var currentRow = life.Position.Row;
             var columnToTheRight = currentColumn + 1;
-            var columnToTheLeft = currentColumn - 1;
-            var rowBelow = currentRow + 1;
             var rowAbove = currentRow - 1;
-            bool isOnTheTop = currentRow == 0;
-            bool isOnTheLeft = currentColumn == 0;
-            bool isOnTheRight = currentColumn == MatrixSize - 1;
-            bool isOnTheBottom = currentRow == MatrixSize - 1;
-
-            // Start to the right and spiral round based on if it is or isn't possible
-
-            // Right
-            if (!isOnTheRight)
+            var isOnTheTop = currentRow == 0;
+            var isOnTheRight = currentColumn == MatrixSize - 1;
+            if (!isOnTheTop && !isOnTheRight)
             {
-                life.AddNeighbours(this.Lives[columnToTheRight, currentRow]);
+                life.AddNeighbours(this.Lives[columnToTheRight, rowAbove]);
             }
+        }
 
-            // Right Below Diagonal
-            if (!isOnTheRight && !isOnTheBottom)
-            {
-                life.AddNeighbours(this.Lives[columnToTheRight, rowBelow]);
-            }
+        private void AddNeighbourAbove(Life life)
+        {
+            var currentColumn = life.Position.Column;
+            var currentRow = life.Position.Row;
+            var rowAbove = currentRow - 1;
+            var isOnTheTop = currentRow == 0;
 
-            // Below
-            if (!isOnTheBottom)
-            {
-                life.AddNeighbours(this.Lives[currentColumn, rowBelow]);
-            }
-
-            // Left Below Diagonal
-            if (!isOnTheLeft && !isOnTheBottom)
-            {
-                life.AddNeighbours(this.Lives[columnToTheLeft, rowBelow]);
-            }
-
-            // Left
-            if (!isOnTheLeft)
-            {
-                life.AddNeighbours(this.Lives[columnToTheLeft, currentRow]);
-            }
-
-            // Left Above Diagonal
-            if (!isOnTheLeft && !isOnTheTop)
-            {
-                life.AddNeighbours(this.Lives[columnToTheLeft, rowAbove]);
-            }
-
-            // Above
             if (!isOnTheTop)
             {
                 life.AddNeighbours(this.Lives[currentColumn, rowAbove]);
             }
+        }
 
-            // Right Above Diagonal
-            if (!isOnTheTop && !isOnTheRight)
+        private void AddNeighbourOnTheAboveDiagonal(Life life)
+        {
+            var currentColumn = life.Position.Column;
+            var currentRow = life.Position.Row;
+            var columnToTheLeft = currentColumn - 1;
+            var rowAbove = currentRow - 1;
+            var isOnTheTop = currentRow == 0;
+            var isOnTheLeft = currentColumn == 0;
+            if (!isOnTheLeft && !isOnTheTop)
             {
-                life.AddNeighbours(this.Lives[columnToTheRight, rowAbove]);
+                life.AddNeighbours(this.Lives[columnToTheLeft, rowAbove]);
+            }
+        }
+
+        private void AddNeighbourToTheLeft(Life life)
+        {
+            var currentColumn = life.Position.Column;
+            var currentRow = life.Position.Row;
+            var columnToTheLeft = currentColumn - 1;
+            var isOnTheLeft = currentColumn == 0;
+            if (!isOnTheLeft)
+            {
+                life.AddNeighbours(this.Lives[columnToTheLeft, currentRow]);
+            }
+        }
+
+        private void AddNeighbourBelowLeftDiagnol(Life life)
+        {
+            var currentColumn = life.Position.Column;
+            var currentRow = life.Position.Row;
+            var columnToTheLeft = currentColumn - 1;
+            var rowBelow = currentRow + 1;
+            var isOnTheLeft = currentColumn == 0;
+            var isOnTheBottom = currentRow == MatrixSize - 1;
+            if (!isOnTheLeft && !isOnTheBottom)
+            {
+                life.AddNeighbours(this.Lives[columnToTheLeft, rowBelow]);
+            }
+        }
+
+        private void AddNeighbourBelow(Life life)
+        {
+            var currentColumn = life.Position.Column;
+            var currentRow = life.Position.Row;
+            var rowBelow = currentRow + 1;
+            var isOnTheBottom = currentRow == MatrixSize - 1;
+            if (!isOnTheBottom)
+            {
+                life.AddNeighbours(this.Lives[currentColumn, rowBelow]);
+            }
+        }
+
+        private void AddNeighbourOnTheBelowRightDiagonal(Life life)
+        {
+            var currentColumn = life.Position.Column;
+            var currentRow = life.Position.Row;
+            var columnToTheRight = currentColumn + 1;
+            var rowBelow = currentRow + 1;
+            var isOnTheRight = currentColumn == MatrixSize - 1;
+            var isOnTheBottom = currentRow == MatrixSize - 1;
+
+            if (!isOnTheRight && !isOnTheBottom)
+            {
+                life.AddNeighbours(this.Lives[columnToTheRight, rowBelow]);
+            }
+        }
+
+        private void AddNeighbourOnTheRight(Life life)
+        {
+            var currentColumn = life.Position.Column;
+            var currentRow = life.Position.Row;
+            var columnToTheRight = currentColumn + 1;
+            bool isOnTheRight = currentColumn == MatrixSize - 1;
+
+            if (!isOnTheRight)
+            {
+                life.AddNeighbours(this.Lives[columnToTheRight, currentRow]);
             }
         }
 
@@ -124,7 +178,7 @@ namespace GameOfLife.Domain
             }
         }
 
-        //TODO: Create a visual way of testing this
+        //TODO: Create a visual way of seeing this
         //public override string ToString()
         //{
         //    StringBuilder result = new StringBuilder();
