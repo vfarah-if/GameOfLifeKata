@@ -61,16 +61,16 @@ namespace GameOfLife.Domain.UnitTests
                 subject.MatrixSize.Should().Be(matrixSize);
             }
 
-            [TestCase((uint)1)]
-            [TestCase((uint)0)]
+            [TestCase((uint) 1)]
+            [TestCase((uint) 0)]
             public void ShouldThrowArgumentOutOfRangeException(uint badMatrixSize)
             {
                 Action action = () => new GameOfLife(badMatrixSize);
 
                 action.Should().Throw<ArgumentOutOfRangeException>()
                     .WithMessage("Specified argument was out of the range of valid values."
-                                 +NewLine +
-                                "Parameter name: Life can not thrive in such a small eco system.");
+                                 + NewLine +
+                                 "Parameter name: Life can not thrive in such a small eco system.");
             }
 
 
@@ -114,8 +114,8 @@ namespace GameOfLife.Domain.UnitTests
 
                 lifeUnderTest.Neighbours.Count.Should().Be(expectedCount);
                 var hasRightPosition = lifeUnderTest.HasNeighbour(1, 0);
-                var hasDiagonalPosition = lifeUnderTest.HasNeighbour(1, 1); 
-                var hasBottomPosition = lifeUnderTest.HasNeighbour(0, 1); 
+                var hasDiagonalPosition = lifeUnderTest.HasNeighbour(1, 1);
+                var hasBottomPosition = lifeUnderTest.HasNeighbour(0, 1);
 
                 hasRightPosition.Should().BeTrue();
                 hasDiagonalPosition.Should().BeTrue();
@@ -294,14 +294,38 @@ namespace GameOfLife.Domain.UnitTests
         }
 
         [TestFixture]
-        public class AndSeedingDataByConfiguringTheBlinkerOscilattorPattern : WhenPlayingGameOfLife
+        public class AndPlayingWithA5By5Matrix : WhenPlayingGameOfLife
         {
             [SetUp]
             public void SetupTheGameWithAFiveByFiveLifeMatrixAndBlinkerSeed()
             {
                 matrixSize = 5;
                 subject = new GameOfLife(matrixSize);
-                ShouldHaveADeadHorizontalBlink();
+                ShouldHaveDefaultDeadEverything();
+            }
+
+            private void ShouldHaveDefaultDeadEverything()
+            {
+                var expectedGridLayout =
+                    "| [-](0,0) || [-](1,0) || [-](2,0) || [-](3,0) || [-](4,0) |" + NewLine +
+                    "| [-](0,1) || [-](1,1) || [-](2,1) || [-](3,1) || [-](4,1) |" + NewLine +
+                    "| [-](0,2) || [-](1,2) || [-](2,2) || [-](3,2) || [-](4,2) |" + NewLine +
+                    "| [-](0,3) || [-](1,3) || [-](2,3) || [-](3,3) || [-](4,3) |" + NewLine +
+                    "| [-](0,4) || [-](1,4) || [-](2,4) || [-](3,4) || [-](4,4) |" + NewLine;
+
+                subject.Lives[1, 2].CurrentLifeState.Should().Be(LifeState.Dead);
+                subject.Lives[2, 2].CurrentLifeState.Should().Be(LifeState.Dead);
+                subject.Lives[3, 2].CurrentLifeState.Should().Be(LifeState.Dead);
+                subject.ToString().Should().Be(expectedGridLayout);
+            }
+        }
+
+        [TestFixture]
+        public class AndSeedingDataByConfiguringTheBlinkerOscilattorPattern : AndPlayingWithA5By5Matrix
+        {
+            [SetUp]
+            public void SetupBlinkerOscilattorData()
+            {
                 subject.SeedLife(new Position(1, 2), new Position(2, 2), new Position(3, 2));
             }
 
@@ -310,7 +334,7 @@ namespace GameOfLife.Domain.UnitTests
             {
                 ShouldHaveAnAliveHorizontalBlink();
             }
-        
+
             [Test]
             public void ShouldThrowIndexOutOfRangeExceptionForPositionsThatDoNotExist()
             {
@@ -358,20 +382,6 @@ namespace GameOfLife.Domain.UnitTests
                 subject.ToString().Should().Be(expectedGridLayout);
             }
 
-            private void ShouldHaveADeadHorizontalBlink()
-            {
-                var expectedGridLayout =
-                    "| [-](0,0) || [-](1,0) || [-](2,0) || [-](3,0) || [-](4,0) |" + NewLine +
-                    "| [-](0,1) || [-](1,1) || [-](2,1) || [-](3,1) || [-](4,1) |" + NewLine +
-                    "| [-](0,2) || [-](1,2) || [-](2,2) || [-](3,2) || [-](4,2) |" + NewLine +
-                    "| [-](0,3) || [-](1,3) || [-](2,3) || [-](3,3) || [-](4,3) |" + NewLine +
-                    "| [-](0,4) || [-](1,4) || [-](2,4) || [-](3,4) || [-](4,4) |" + NewLine;
-
-                subject.Lives[1, 2].CurrentLifeState.Should().Be(LifeState.Dead);
-                subject.Lives[2, 2].CurrentLifeState.Should().Be(LifeState.Dead);
-                subject.Lives[3, 2].CurrentLifeState.Should().Be(LifeState.Dead);
-                subject.ToString().Should().Be(expectedGridLayout);
-            }
 
             private void ShouldHaveAnAliveHorizontalBlink()
             {
@@ -385,6 +395,54 @@ namespace GameOfLife.Domain.UnitTests
                 subject.Lives[1, 2].CurrentLifeState.Should().Be(LifeState.Alive);
                 subject.Lives[2, 2].CurrentLifeState.Should().Be(LifeState.Alive);
                 subject.Lives[3, 2].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.ToString().Should().Be(expectedGridLayout);
+            }
+        }
+
+        [TestFixture]
+        public class AndSeedingDataByConfiguringAStillLifeTubPattern : AndPlayingWithA5By5Matrix
+        {
+            [SetUp]
+            public void SetupSeed()
+            {
+                subject.SeedLife(new Position(2, 1), new Position(1, 2), new Position(3, 2), new Position(2, 3));
+            }
+
+            [Test]
+            public void ShouldGenerateAStillLifeTubNoMatterHowManyTimesThisIsGenerated()
+            {
+                try
+                {
+                    subject.GenerateFinished += OnGenerateFinished;
+
+                    subject.Generate();
+                    subject.Generate();
+                    subject.Generate();
+                }
+                finally
+                {
+                    subject.GenerateFinished -= OnGenerateFinished;
+                }
+            }
+
+            private void OnGenerateFinished(object sender, EventArgs e)
+            {
+                ShouldAlwaysHaveAStillLifeTubPattern();
+            }
+
+            private void ShouldAlwaysHaveAStillLifeTubPattern()
+            {
+                var expectedGridLayout =
+                    "| [-](0,0) || [-](1,0) || [-](2,0) || [-](3,0) || [-](4,0) |" + NewLine +
+                    "| [-](0,1) || [-](1,1) || [+](2,1) || [-](3,1) || [-](4,1) |" + NewLine +
+                    "| [-](0,2) || [+](1,2) || [-](2,2) || [+](3,2) || [-](4,2) |" + NewLine +
+                    "| [-](0,3) || [-](1,3) || [+](2,3) || [-](3,3) || [-](4,3) |" + NewLine +
+                    "| [-](0,4) || [-](1,4) || [-](2,4) || [-](3,4) || [-](4,4) |" + NewLine;
+
+                subject.Lives[2, 1].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Lives[1, 2].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Lives[3, 2].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Lives[2, 3].CurrentLifeState.Should().Be(LifeState.Alive);
                 subject.ToString().Should().Be(expectedGridLayout);
             }
         }

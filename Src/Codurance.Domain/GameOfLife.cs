@@ -10,6 +10,7 @@ namespace GameOfLife.Domain
         public const uint MINIMUM_MATRIX_SIZE = 2;
         private event EventHandler CalculateLifeExpectancies;
         private event EventHandler TransferLifeStates;
+        public event EventHandler GenerateFinished;
 
         public GameOfLife(uint matrixSize)
         {
@@ -34,10 +35,11 @@ namespace GameOfLife.Domain
         public void Generate()
         {
             OnCalculatingLifeExpectancies();
-            OnTransferLifeStates();
+            OnTransferLifeStates();            
 #if DEBUG
-            Debug.WriteLine(ToString()); 
+            Debug.WriteLine(ToString());
 #endif
+            OnGenerateFinished();
         }
 
         private void Initialise()
@@ -218,6 +220,11 @@ namespace GameOfLife.Domain
             }
 
             return result.ToString();
+        }
+
+        protected virtual void OnGenerateFinished()
+        {
+            GenerateFinished?.Invoke(this, EventArgs.Empty);
         }
     }
 }

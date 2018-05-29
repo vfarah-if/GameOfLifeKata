@@ -19,3 +19,11 @@ The initial pattern constitutes the **seed** of the system. The first generati
 3. There should be potential for von Neumann universal constructors.
 
 The rules should be as simple as possible, whilst adhering to the above constraints.
+
+## Uniqueish design features
+I used an observer pattern for calculating the the life expectancy as well as to transition the life state in a non chaotic way, and utilised multicast delegates and event handlers to facilitate this.
+I wanted a visual way for representing the test, to make it obvious what was being tested within the life matrix and so I outputed a visual array of +(alive) and -(dead) lifes by position.
+My testing structure is always based on a base class that tests everything generically related to tests like a common constructor or function that may be utilised commonly in all the other tests inheriting from this base. I tend to add helper methods specifically for all tests within this base class, and then every test with a specific scenario is tested under a different class in a format reading nicely with the test explorer, simplifying the text in a BDD type format to focus what is being tested.
+Autofixture is a great way of generating values as well as extending Moq as a dependency injection framework through customizations.
+Fluent assertions lends to making tests more readable, as a natural extension or decorator of what is being tested.
+My domain is fairly simple and easy to read. The pattern has a simple spiral analysis around the life in question, constituting a fair amount of repitition in getting variables to build the pattern, which may need some refactoring, but because it makes it easy to read I am happy to overlook the repition and based on that I am happy to leave it like this for the first version and consider upgrading on a next round of refactoring or enhancements.
