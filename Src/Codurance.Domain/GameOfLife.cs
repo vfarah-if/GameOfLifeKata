@@ -42,6 +42,31 @@ namespace GameOfLife.Domain
             OnGenerateFinished();
         }
 
+        public override string ToString()
+        {
+            return PictureIt();
+        }
+
+        protected virtual string PictureIt()
+        {
+            var result = new StringBuilder();
+            var currentRow = 0;
+            ForeachPosition(position =>
+            {
+                if (currentRow != position.Row)
+                {
+                    result.AppendLine();
+                    currentRow = position.Row;
+                }
+                var currentLife = Lives[position.Column, position.Row];
+                result.AppendFormat("| [{0}]({1},{2}) |",
+                    currentLife.CurrentLifeState == LifeState.Alive ? '+' : '-',
+                    position.Column,
+                    position.Row);
+            });
+            return result.ToString();
+        }
+
         private void Initialise()
         {
             InitialiseLives();
@@ -50,13 +75,7 @@ namespace GameOfLife.Domain
 
         private void BuildRelationships()
         {
-            for (var rowIndex = 0; rowIndex < MatrixSize; rowIndex++)
-            {
-                for (var columnIndex = 0; columnIndex < MatrixSize; columnIndex++)
-                {
-                    SetupNeighbours(Lives[columnIndex, rowIndex]);
-                }
-            }
+            ForeachPosition(position => SetupNeighbours(Lives[position.Column, position.Row]));
         }
 
         private void SetupNeighbours(Life life)
@@ -181,14 +200,22 @@ namespace GameOfLife.Domain
         private void InitialiseLives()
         {
             Lives = new Life[MatrixSize, MatrixSize];
+            ForeachPosition(position =>
+            {
+                var newLife = new Life(position);
+                Lives[position.Column, position.Row] = newLife;
+                CalculateLifeExpectancies += (sender, args) => newLife.CalculateLifeExpectancy();
+                TransferLifeStates += (sender, args) => newLife.TransferLifeState();
+            });
+        }
+
+        private void ForeachPosition(Action<Position> doAction)
+        {
             for (var rowIndex = 0; rowIndex < MatrixSize; rowIndex++)
             {
                 for (var columnIndex = 0; columnIndex < MatrixSize; columnIndex++)
                 {
-                    var newLife = new Life(columnIndex, rowIndex);
-                    Lives[columnIndex, rowIndex] = newLife;
-                    CalculateLifeExpectancies += (sender, args) => newLife.CalculateLifeExpectancy();
-                    TransferLifeStates += (sender, args) => newLife.TransferLifeState();
+                    doAction?.Invoke(new Position(columnIndex, rowIndex));
                 }
             }
         }
@@ -201,25 +228,6 @@ namespace GameOfLife.Domain
         protected virtual void OnTransferLifeStates()
         {
             TransferLifeStates?.Invoke(this, EventArgs.Empty);
-        }
-
-        public override string ToString()
-        {
-            var result = new StringBuilder();            
-            for (var rowIndex = 0; rowIndex < MatrixSize; rowIndex++)
-            {
-                for (var columnIndex = 0; columnIndex < MatrixSize; columnIndex++)
-                {
-                    var currentLife = Lives[columnIndex, rowIndex];
-                    result.AppendFormat("| [{0}]({1},{2}) |", 
-                        currentLife.CurrentLifeState == LifeState.Alive ? '+' : '-',
-                        currentLife.Position.Column,
-                        currentLife.Position.Row);                    
-                }
-                result.AppendLine();
-            }
-
-            return result.ToString();
         }
 
         protected virtual void OnGenerateFinished()

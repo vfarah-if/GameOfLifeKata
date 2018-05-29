@@ -7,20 +7,7 @@ using FluentAssertions;
 using NUnit.Framework;
 
 namespace GameOfLife.Domain.UnitTests
-{
-    // Scenarios
-    // (X) Should validate any constructor values(Generic)
-    // (X) Should set the position in life (Generic)
-    // (X) Should pass in a default life state as Dead (Generic)
-    // (X) Should have a current life state (Specific)
-    // (X) Should have neighbours to help with life (Specific)
-    // (X) Should have a projected life state based on : (Specific)
-    //      (X) 1. Any live cell with *fewer than two live neighbours dies*, as if caused by **underpopulation**.
-    //      (X) 2. Any live cell with *two or three live neighbours lives* on to the** next generation**.
-    //      (X) 3. Any live cell with *more than three live neighbours dies*, as if by** overpopulation**.
-    //      (X) 4. Any dead cell with *exactly three live neighbours becomes a live cell*, as if by** reproduction**.          
-
-    
+{   
     [TestFixture]
     public class WhenUsingALifeToPlayGameOfLife
     {
