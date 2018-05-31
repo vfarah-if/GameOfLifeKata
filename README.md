@@ -31,4 +31,5 @@ The initialize is only done once, so does not need to be optimised in anyway. Th
 
 ## TODO for next version
 * Generate a WPF app that will allow simple visualization of the pulsar pattern or a test harness where we can seed any data and automatically run and visualise stuff with an option to show metrics
-* Fix it so the matrix does not have to be a square, that can facilitate the *Pentadecathlon* pattern
+* Generate statistics built on each generation about how many lifes were created and destroyed
+* Generate a way of simulate a run by periods and amount of time

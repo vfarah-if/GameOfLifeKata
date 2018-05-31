@@ -3,7 +3,8 @@
     public interface IGameOfLife
     {
         Life[,] Lives { get; }
-        uint MatrixSize { get; }
+        uint RowSize { get;  }
+        uint ColumnSize { get; }
 
         void Generate();
         void SeedLife(params Position[] positions);
