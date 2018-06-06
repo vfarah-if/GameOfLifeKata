@@ -28,7 +28,7 @@ namespace GameOfLife.Domain.UnitTests
         }
 
         [TestFixture]
-        public class AndSettingTheSizeOfTheLivesMatrix : WhenPlayingGameOfLife
+        public class AndSettingTheSizeOfTheCellsMatrix : WhenPlayingGameOfLife
         {
             [SetUp]
             public void SetupTheGameAndMatrix()
@@ -38,7 +38,7 @@ namespace GameOfLife.Domain.UnitTests
             }
 
             [Test]
-            public void ShouldSetTheMatrixByTheConstranedSize()
+            public void ShouldSetTheMatrixByTheConstrainedSize()
             {
                 subject.ColumnSize.Should().Be(matrixSize);
                 subject.RowSize.Should().Be(matrixSize);
@@ -53,7 +53,7 @@ namespace GameOfLife.Domain.UnitTests
                 action.Should().Throw<ArgumentOutOfRangeException>()
                     .WithMessage("Specified argument was out of the range of valid values."
                                  + NewLine +
-                                 "Parameter name: Life can not thrive in such a small eco system.");
+                                 "Parameter name: Life can not thrive in such a small ecosystem.");
             }
 
 
@@ -62,13 +62,13 @@ namespace GameOfLife.Domain.UnitTests
             {
                 int expectedMatrixLength = Convert.ToInt32(matrixSize * matrixSize);
 
-                subject.Lives.Length.Should().Be(expectedMatrixLength);
+                subject.Cells.Length.Should().Be(expectedMatrixLength);
                 for (var rowIndex = 0; rowIndex < matrixSize; rowIndex++)
                 {
                     for (var colIndex = 0; colIndex < matrixSize; colIndex++)
                     {
-                        subject.Lives[colIndex, rowIndex].Should().BeOfType<Life>();
-                        subject.Lives[colIndex, rowIndex].CurrentLifeState.Should().Be(LifeState.Dead);
+                        subject.Cells[colIndex, rowIndex].Should().BeOfType<Cell>();
+                        subject.Cells[colIndex, rowIndex].CurrentLifeState.Should().Be(LifeState.Dead);
                     }
                 }
             }
@@ -93,7 +93,7 @@ namespace GameOfLife.Domain.UnitTests
             public void ShouldBuildTheTopLeftCornerWithThreeNeighbours()
             {
                 int expectedCount = 3;
-                var lifeUnderTest = subject.Lives[0, 0];
+                var lifeUnderTest = subject.Cells[0, 0];
 
                 lifeUnderTest.Neighbours.Count.Should().Be(expectedCount);
                 var hasRightPosition = lifeUnderTest.HasNeighbour(1, 0);
@@ -109,7 +109,7 @@ namespace GameOfLife.Domain.UnitTests
             public void ShouldBuildTheTopMiddleWithFiveNeighbours()
             {
                 int expectedCount = 5;
-                var lifeUnderTest = subject.Lives[1, 0];
+                var lifeUnderTest = subject.Cells[1, 0];
 
                 lifeUnderTest.Neighbours.Count.Should().Be(expectedCount);
                 var hasRightPosition = lifeUnderTest.HasNeighbour(2, 0);
@@ -129,7 +129,7 @@ namespace GameOfLife.Domain.UnitTests
             public void ShouldBuildTheTopRightCornerWithThreeNeighbours()
             {
                 int expectedCount = 3;
-                var lifeUnderTest = subject.Lives[2, 0];
+                var lifeUnderTest = subject.Cells[2, 0];
 
                 lifeUnderTest.Neighbours.Count.Should().Be(expectedCount);
                 var hasLeftPosition = lifeUnderTest.HasNeighbour(1, 0);
@@ -149,7 +149,7 @@ namespace GameOfLife.Domain.UnitTests
             public void ShouldBuildTheLeftMiddleWithFiveNeighbours()
             {
                 int expectedCount = 5;
-                var lifeUnderTest = subject.Lives[0, 1];
+                var lifeUnderTest = subject.Cells[0, 1];
 
                 lifeUnderTest.Neighbours.Count.Should().Be(expectedCount);
                 var hasRightPosition = lifeUnderTest.HasNeighbour(1, 1);
@@ -169,7 +169,7 @@ namespace GameOfLife.Domain.UnitTests
             public void ShouldBuildTheBottomLeftCornerWithThreeNeighbours()
             {
                 int expectedCount = 3;
-                var lifeUnderTest = subject.Lives[0, 2];
+                var lifeUnderTest = subject.Cells[0, 2];
 
                 lifeUnderTest.Neighbours.Count.Should().Be(expectedCount);
                 var hasRightPosition = lifeUnderTest.HasNeighbour(1, 2);
@@ -189,7 +189,7 @@ namespace GameOfLife.Domain.UnitTests
             public void ShouldBuildTheLeftMiddleWithFiveNeighbours()
             {
                 int expectedCount = 5;
-                var lifeUnderTest = subject.Lives[1, 2];
+                var lifeUnderTest = subject.Cells[1, 2];
 
                 lifeUnderTest.Neighbours.Count.Should().Be(expectedCount);
                 var hasRightPosition = lifeUnderTest.HasNeighbour(2, 2);
@@ -209,7 +209,7 @@ namespace GameOfLife.Domain.UnitTests
             public void ShouldBuildTheBottomRightCornerWithThreeNeighbours()
             {
                 int expectedCount = 3;
-                var lifeUnderTest = subject.Lives[2, 2];
+                var lifeUnderTest = subject.Cells[2, 2];
 
                 lifeUnderTest.Neighbours.Count.Should().Be(expectedCount);
                 var hasLeftPosition = lifeUnderTest.HasNeighbour(1, 2);
@@ -229,7 +229,7 @@ namespace GameOfLife.Domain.UnitTests
             public void ShouldBuildTheRightMiddleWithFiveNeighbours()
             {
                 int expectedCount = 5;
-                var lifeUnderTest = subject.Lives[2, 1];
+                var lifeUnderTest = subject.Cells[2, 1];
 
                 lifeUnderTest.Neighbours.Count.Should().Be(expectedCount);
                 var hasBottomPosition = lifeUnderTest.HasNeighbour(2, 2);
@@ -253,7 +253,7 @@ namespace GameOfLife.Domain.UnitTests
             public void ShouldBuildTheMiddleWithEightNeighbours()
             {
                 int expectedCount = 8;
-                var lifeUnderTest = subject.Lives[1, 1];
+                var lifeUnderTest = subject.Cells[1, 1];
 
                 lifeUnderTest.Neighbours.Count.Should().Be(expectedCount);
                 var hasRightPosition = lifeUnderTest.HasNeighbour(2, 1);
@@ -295,9 +295,9 @@ namespace GameOfLife.Domain.UnitTests
                     "| [-](0,2) || [-](1,2) || [-](2,2) || [-](3,2) || [-](4,2) |" + NewLine +
                     "| [-](0,3) || [-](1,3) || [-](2,3) || [-](3,3) || [-](4,3) |" + NewLine +
                     "| [-](0,4) || [-](1,4) || [-](2,4) || [-](3,4) || [-](4,4) |";
-                subject.Lives[1, 2].CurrentLifeState.Should().Be(LifeState.Dead);
-                subject.Lives[2, 2].CurrentLifeState.Should().Be(LifeState.Dead);
-                subject.Lives[3, 2].CurrentLifeState.Should().Be(LifeState.Dead);
+                subject.Cells[1, 2].CurrentLifeState.Should().Be(LifeState.Dead);
+                subject.Cells[2, 2].CurrentLifeState.Should().Be(LifeState.Dead);
+                subject.Cells[3, 2].CurrentLifeState.Should().Be(LifeState.Dead);
                 subject.ToString().Should().Be(expectedGridLayout);
             }
         }
@@ -424,10 +424,8 @@ namespace GameOfLife.Domain.UnitTests
                             ShouldNotBeTheStartSeededPentadecathlonData();
                             break;
                     }
-                }
-                
+                }               
             }
-
 
             private void ShouldHaveTheStartSeededPentadecathlonData()
             {
@@ -498,9 +496,9 @@ namespace GameOfLife.Domain.UnitTests
                     "| [-](0,2) || [-](1,2) || [+](2,2) || [-](3,2) || [-](4,2) |" + NewLine +
                     "| [-](0,3) || [-](1,3) || [+](2,3) || [-](3,3) || [-](4,3) |" + NewLine +
                     "| [-](0,4) || [-](1,4) || [-](2,4) || [-](3,4) || [-](4,4) |";
-                subject.Lives[2, 1].CurrentLifeState.Should().Be(LifeState.Alive);
-                subject.Lives[2, 2].CurrentLifeState.Should().Be(LifeState.Alive);
-                subject.Lives[2, 3].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Cells[2, 1].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Cells[2, 2].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Cells[2, 3].CurrentLifeState.Should().Be(LifeState.Alive);
                 subject.ToString().Should().Be(expectedGridLayout);
             }
 
@@ -514,9 +512,9 @@ namespace GameOfLife.Domain.UnitTests
                     "| [-](0,3) || [-](1,3) || [-](2,3) || [-](3,3) || [-](4,3) |" + NewLine +
                     "| [-](0,4) || [-](1,4) || [-](2,4) || [-](3,4) || [-](4,4) |";
 
-                subject.Lives[1, 2].CurrentLifeState.Should().Be(LifeState.Alive);
-                subject.Lives[2, 2].CurrentLifeState.Should().Be(LifeState.Alive);
-                subject.Lives[3, 2].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Cells[1, 2].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Cells[2, 2].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Cells[3, 2].CurrentLifeState.Should().Be(LifeState.Alive);
                 subject.ToString().Should().Be(expectedGridLayout);
             }
         }
@@ -561,10 +559,10 @@ namespace GameOfLife.Domain.UnitTests
                     "| [-](0,3) || [-](1,3) || [+](2,3) || [-](3,3) || [-](4,3) |" + NewLine +
                     "| [-](0,4) || [-](1,4) || [-](2,4) || [-](3,4) || [-](4,4) |";
 
-                subject.Lives[2, 1].CurrentLifeState.Should().Be(LifeState.Alive);
-                subject.Lives[1, 2].CurrentLifeState.Should().Be(LifeState.Alive);
-                subject.Lives[3, 2].CurrentLifeState.Should().Be(LifeState.Alive);
-                subject.Lives[2, 3].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Cells[2, 1].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Cells[1, 2].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Cells[3, 2].CurrentLifeState.Should().Be(LifeState.Alive);
+                subject.Cells[2, 3].CurrentLifeState.Should().Be(LifeState.Alive);
                 subject.ToString().Should().Be(expectedGridLayout);
             }
         }
