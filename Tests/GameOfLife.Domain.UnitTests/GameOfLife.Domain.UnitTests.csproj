@@ -81,7 +81,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Src\Codurance.Domain\GameOfLife.Domain.csproj">
+    <ProjectReference Include="..\..\Src\GameOfLife.Domain\GameOfLife.Domain.csproj">
       <Project>{417ba1db-635f-41ae-a540-ced89edcbe78}</Project>
       <Name>GameOfLife.Domain</Name>
     </ProjectReference>
