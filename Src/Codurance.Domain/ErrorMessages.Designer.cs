@@ -79,7 +79,7 @@ namespace GameOfLife.Domain {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Life can not thrive in such a small eco system..
+        ///   Looks up a localized string similar to Life can not thrive in such a small ecosystem..
         /// </summary>
         internal static string MatrixSizeOutOfRange {
             get {
@@ -88,16 +88,16 @@ namespace GameOfLife.Domain {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Maximum eight surrounding lives..
+        ///   Looks up a localized string similar to Maximum of eight neighbour cells..
         /// </summary>
-        internal static string MaximumSurroundingLivesReached {
+        internal static string MaximumSurroundingCellsReached {
             get {
-                return ResourceManager.GetString("MaximumSurroundingLivesReached", resourceCulture);
+                return ResourceManager.GetString("MaximumSurroundingCellsReached", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Minimum of three neighbours required to calculate vitality.
+        ///   Looks up a localized string similar to Minimum of three neighbour cells required to calculate vitality..
         /// </summary>
         internal static string NotEnoughNeighbours {
             get {

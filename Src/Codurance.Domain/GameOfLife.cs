@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.Text;
 using static GameOfLife.Domain.ErrorMessages;
 
@@ -32,13 +31,13 @@ namespace GameOfLife.Domain
 
         public uint ColumnSize { get; }
         public uint RowSize { get; }
-        public Life[,] Lives { get; private set; }
+        public Cell[,] Cells { get; private set; }
 
         public void SeedLife(params Position[] positions)
         {
             foreach (var position in positions)
             {
-                Lives[position.Column, position.Row].BringToLife();
+                Cells[position.Column, position.Row].BringToLife();
             }
         }
         public void Generate()
@@ -67,7 +66,7 @@ namespace GameOfLife.Domain
                     result.AppendLine();
                     currentRow = position.Row;
                 }
-                var currentLife = Lives[position.Column, position.Row];
+                var currentLife = Cells[position.Column, position.Row];
                 result.AppendFormat("| [{0}]({1},{2}) |",
                     currentLife.CurrentLifeState == LifeState.Alive ? '+' : '-',
                     SpaceEquallyWithZeros(position.Column, ColumnSize),
@@ -89,104 +88,104 @@ namespace GameOfLife.Domain
 
         private void BuildRelationships()
         {
-            ForeachPosition(position => SetupNeighbours(Lives[position.Column, position.Row]));
+            ForeachPosition(position => SetupNeighbours(Cells[position.Column, position.Row]));
         }
 
-        private void SetupNeighbours(Life life)
+        private void SetupNeighbours(Cell cell)
         {
-            AddNeighbourOnTheRight(life);
-            AddNeighbourOnTheBelowRightDiagonal(life);
-            AddNeighbourBelow(life);
-            AddNeighbourBelowLeftDiagnol(life);
-            AddNeighbourToTheLeft(life);
-            AddNeighbourOnTheAboveLeftDiagonal(life);
-            AddNeighbourAbove(life);
-            AddNeighbourOnTheAboveRightDiagonal(life);
+            AddNeighbourOnTheRight(cell);
+            AddNeighbourOnTheBelowRightDiagonal(cell);
+            AddNeighbourBelow(cell);
+            AddNeighbourBelowLeftDiagnol(cell);
+            AddNeighbourToTheLeft(cell);
+            AddNeighbourOnTheAboveLeftDiagonal(cell);
+            AddNeighbourAbove(cell);
+            AddNeighbourOnTheAboveRightDiagonal(cell);
         }
 
-        private void AddNeighbourOnTheAboveRightDiagonal(Life life)
+        private void AddNeighbourOnTheAboveRightDiagonal(Cell cell)
         {
-            var currentColumn = life.Position.Column;
-            var currentRow = life.Position.Row;
+            var currentColumn = cell.Position.Column;
+            var currentRow = cell.Position.Row;
             var columnToTheRight = currentColumn + 1;
             var rowAbove = currentRow - 1;
             var isOnTheTop = currentRow == 0;
             var isOnTheRight = currentColumn == ColumnSize - 1;
             if (!isOnTheTop && !isOnTheRight)
             {
-                life.AddNeighbours(Lives[columnToTheRight, rowAbove]);
+                cell.AddNeighbours(Cells[columnToTheRight, rowAbove]);
             }
         }
 
-        private void AddNeighbourAbove(Life life)
+        private void AddNeighbourAbove(Cell cell)
         {
-            var currentColumn = life.Position.Column;
-            var currentRow = life.Position.Row;
+            var currentColumn = cell.Position.Column;
+            var currentRow = cell.Position.Row;
             var rowAbove = currentRow - 1;
             var isOnTheTop = currentRow == 0;
 
             if (!isOnTheTop)
             {
-                life.AddNeighbours(Lives[currentColumn, rowAbove]);
+                cell.AddNeighbours(Cells[currentColumn, rowAbove]);
             }
         }
 
-        private void AddNeighbourOnTheAboveLeftDiagonal(Life life)
+        private void AddNeighbourOnTheAboveLeftDiagonal(Cell cell)
         {
-            var currentColumn = life.Position.Column;
-            var currentRow = life.Position.Row;
+            var currentColumn = cell.Position.Column;
+            var currentRow = cell.Position.Row;
             var columnToTheLeft = currentColumn - 1;
             var rowAbove = currentRow - 1;
             var isOnTheTop = currentRow == 0;
             var isOnTheLeft = currentColumn == 0;
             if (!isOnTheLeft && !isOnTheTop)
             {
-                life.AddNeighbours(Lives[columnToTheLeft, rowAbove]);
+                cell.AddNeighbours(Cells[columnToTheLeft, rowAbove]);
             }
         }
 
-        private void AddNeighbourToTheLeft(Life life)
+        private void AddNeighbourToTheLeft(Cell cell)
         {
-            var currentColumn = life.Position.Column;
-            var currentRow = life.Position.Row;
+            var currentColumn = cell.Position.Column;
+            var currentRow = cell.Position.Row;
             var columnToTheLeft = currentColumn - 1;
             var isOnTheLeft = currentColumn == 0;
             if (!isOnTheLeft)
             {
-                life.AddNeighbours(Lives[columnToTheLeft, currentRow]);
+                cell.AddNeighbours(Cells[columnToTheLeft, currentRow]);
             }
         }
 
-        private void AddNeighbourBelowLeftDiagnol(Life life)
+        private void AddNeighbourBelowLeftDiagnol(Cell cell)
         {
-            var currentColumn = life.Position.Column;
-            var currentRow = life.Position.Row;
+            var currentColumn = cell.Position.Column;
+            var currentRow = cell.Position.Row;
             var columnToTheLeft = currentColumn - 1;
             var rowBelow = currentRow + 1;
             var isOnTheLeft = currentColumn == 0;
             var isOnTheBottom = currentRow == RowSize - 1;
             if (!isOnTheLeft && !isOnTheBottom)
             {
-                life.AddNeighbours(Lives[columnToTheLeft, rowBelow]);
+                cell.AddNeighbours(Cells[columnToTheLeft, rowBelow]);
             }
         }
 
-        private void AddNeighbourBelow(Life life)
+        private void AddNeighbourBelow(Cell cell)
         {
-            var currentColumn = life.Position.Column;
-            var currentRow = life.Position.Row;
+            var currentColumn = cell.Position.Column;
+            var currentRow = cell.Position.Row;
             var rowBelow = currentRow + 1;
             var isOnTheBottom = currentRow == RowSize - 1;
             if (!isOnTheBottom)
             {
-                life.AddNeighbours(Lives[currentColumn, rowBelow]);
+                cell.AddNeighbours(Cells[currentColumn, rowBelow]);
             }
         }
 
-        private void AddNeighbourOnTheBelowRightDiagonal(Life life)
+        private void AddNeighbourOnTheBelowRightDiagonal(Cell cell)
         {
-            var currentColumn = life.Position.Column;
-            var currentRow = life.Position.Row;
+            var currentColumn = cell.Position.Column;
+            var currentRow = cell.Position.Row;
             var columnToTheRight = currentColumn + 1;
             var rowBelow = currentRow + 1;
             var isOnTheRight = currentColumn == ColumnSize - 1;
@@ -194,30 +193,30 @@ namespace GameOfLife.Domain
 
             if (!isOnTheRight && !isOnTheBottom)
             {
-                life.AddNeighbours(Lives[columnToTheRight, rowBelow]);
+                cell.AddNeighbours(Cells[columnToTheRight, rowBelow]);
             }
         }
 
-        private void AddNeighbourOnTheRight(Life life)
+        private void AddNeighbourOnTheRight(Cell cell)
         {
-            var currentColumn = life.Position.Column;
-            var currentRow = life.Position.Row;
+            var currentColumn = cell.Position.Column;
+            var currentRow = cell.Position.Row;
             var columnToTheRight = currentColumn + 1;
-            bool isOnTheRight = currentColumn == ColumnSize - 1;
+            var isOnTheRight = currentColumn == ColumnSize - 1;
 
             if (!isOnTheRight)
             {
-                life.AddNeighbours(Lives[columnToTheRight, currentRow]);
+                cell.AddNeighbours(Cells[columnToTheRight, currentRow]);
             }
         }
 
         private void InitialiseLives()
         {
-            Lives = new Life[ColumnSize, RowSize];
+            Cells = new Cell[ColumnSize, RowSize];
             ForeachPosition(position =>
             {
-                var newLife = new Life(position);
-                Lives[position.Column, position.Row] = newLife;
+                var newLife = new Cell(position);
+                Cells[position.Column, position.Row] = newLife;
                 CalculateLifeExpectancies += (sender, args) => newLife.CalculateLifeExpectancy();
                 TransferLifeStates += (sender, args) => newLife.TransferLifeState();
             });

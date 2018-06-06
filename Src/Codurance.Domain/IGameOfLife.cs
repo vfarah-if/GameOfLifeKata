@@ -2,9 +2,9 @@
 {
     public interface IGameOfLife
     {
-        Life[,] Lives { get; }
-        uint RowSize { get;  }
+        Cell[,] Cells { get; }        
         uint ColumnSize { get; }
+        uint RowSize { get; }
 
         void Generate();
         void SeedLife(params Position[] positions);

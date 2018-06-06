@@ -9,9 +9,9 @@ using NUnit.Framework;
 namespace GameOfLife.Domain.UnitTests
 {   
     [TestFixture]
-    public class WhenUsingALifeToPlayGameOfLife
+    public class WhenUsingACellToPlayGameOfLife
     {
-        private Life subject;
+        private Cell subject;
         private IFixture fixture;
 
         [OneTimeSetUp]
@@ -27,9 +27,9 @@ namespace GameOfLife.Domain.UnitTests
         }
 
         [Test, AutoData]
-        public void ShouldSetItsPositionInLife(Position position)
+        public void ShouldSetItsPositionInCell(Position position)
         { 
-            subject = new Life(position);
+            subject = new Cell(position);
 
             subject.Position.Should().Be(position);
         }
@@ -37,7 +37,7 @@ namespace GameOfLife.Domain.UnitTests
         [Test, AutoData]
         public void ShouldSetACurrentLifeState(Position position, LifeState currentLifeState)
         {
-            subject = new Life(position, currentLifeState);
+            subject = new Cell(position, currentLifeState);
 
             subject.CurrentLifeState.Should().Be(currentLifeState);
         }
@@ -45,64 +45,38 @@ namespace GameOfLife.Domain.UnitTests
         [Test, AutoData]
         public void ShouldSetTheDefaultLifeStateToDead(Position position)
         {
-            subject = new Life(position);
+            subject = new Cell(position);
 
             subject.CurrentLifeState.Should().Be(LifeState.Dead);
         }
 
-        private Life CreateLife(LifeState lifeState = LifeState.Dead)
+        private Cell CreateCell(LifeState lifeState = LifeState.Dead)
         {
             var x = fixture.Create<int>();
             var y = fixture.Create<int>();
-            return new Life(x, y, lifeState);
+            return new Cell(x, y, lifeState);
         }
 
-        private IEnumerable<Life> GetThreeAliveOnlyLives()
+        private IEnumerable<Cell> GetThreeAliveOnlyCells()
         {
-            yield return CreateLife(LifeState.Alive);
-            yield return CreateLife(LifeState.Alive);
-            yield return CreateLife(LifeState.Alive);
-            yield return CreateLife();
-        }
-
-
-        private IEnumerable<Life> GetTwoAliveOnlyLives()
-        {
-            yield return CreateLife(LifeState.Alive);
-            yield return CreateLife(LifeState.Alive);
-            yield return CreateLife();
-            yield return CreateLife();
-        }
-
-        private IEnumerable<Life> GetMoreThanThreeALiveOnlyLives()
-        {
-            yield return CreateLife(LifeState.Alive);
-            yield return CreateLife(LifeState.Alive);
-            yield return CreateLife(LifeState.Alive);
-            yield return CreateLife(LifeState.Alive);
-            yield return CreateLife();
-            yield return CreateLife();
-        }
-
-        private IEnumerable<Life> GetOneALiveOnlyLives()
-        {
-            yield return CreateLife(LifeState.Alive);
-            yield return CreateLife();
-            yield return CreateLife();
+            yield return CreateCell(LifeState.Alive);
+            yield return CreateCell(LifeState.Alive);
+            yield return CreateCell(LifeState.Alive);
+            yield return CreateCell();
         }
 
         [TestFixture]
-        public class AndAllowingTheCurrentStateToBeSeeded : WhenUsingALifeToPlayGameOfLife
+        public class AndAllowingTheCurrentStateToBeSeeded : WhenUsingACellToPlayGameOfLife
         {
 
             [SetUp]
             public void SetupPositionAndTest()
             {
-                subject = CreateLife(LifeState.Dead);
+                subject = CreateCell();
             }
 
             [Test]
-            public void ShouldMakeLifeAlive()
+            public void ShouldMakeCellAlive()
             {
                 subject.BringToLife();
 
@@ -119,55 +93,67 @@ namespace GameOfLife.Domain.UnitTests
         }
 
         [TestFixture]
-        public class AndConfiguringSurroundingLives : WhenUsingALifeToPlayGameOfLife
+        public class AndConfiguringNeighboursToPlayGameOfLife : WhenUsingACellToPlayGameOfLife
         {
-            private Life[] surroundingLives;
+            private Cell[] neighbours;
 
             [SetUp]
             public void SetupSurroundingLifesAndTest()
             {
-                surroundingLives = fixture.CreateMany<Life>().ToArray();
-                subject = CreateLife();
+                neighbours = fixture.CreateMany<Cell>().ToArray();
+                subject = CreateCell();
             }
 
             [Test]
             public void ShouldAddNeighbours()
             {
-                subject.AddNeighbours(surroundingLives);
+                subject.AddNeighbours(neighbours);
 
-                foreach (var surroundingLife in surroundingLives)
+                foreach (var surroundingLife in neighbours)
                 {
                     subject.Neighbours.Should().Contain(surroundingLife);
                 }
             }
 
             [Test]
-            public void ShouldThrowNotSupportedExceptionStatingSupportForMaximumEightSurroundingLives()
+            public void ShouldThrowNotSupportedExceptionStatingSupportForMaximumEightSurroundingCells()
             {
-                var nineSurroundingLives = new Life[] {
-                        CreateLife(), CreateLife(), CreateLife() ,
-                        CreateLife(), CreateLife(), CreateLife() ,
-                        CreateLife(), CreateLife(), CreateLife() };
+                neighbours = GetNineCells().ToArray();
 
-                Action action = () => subject.AddNeighbours(nineSurroundingLives);
+                Action action = () => subject.AddNeighbours(neighbours);
 
-                action.Should().Throw<NotSupportedException>().WithMessage("Maximum eight surrounding lives.");
+                action.Should().Throw<NotSupportedException>().WithMessage("Maximum of eight neighbour cells.");
+            }
+
+            private IEnumerable<Cell> GetNineCells()
+            {
+                yield return CreateCell();
+                yield return CreateCell();
+                yield return CreateCell();
+
+                yield return CreateCell();
+                yield return CreateCell();
+                yield return CreateCell();
+
+                yield return CreateCell();
+                yield return CreateCell();
+                yield return CreateCell();
             }
         }
 
         [TestFixture]
-        public class AndCalculatingTheLifeExpectancyOfALivingLife : WhenUsingALifeToPlayGameOfLife
+        public class AndCalculatingTheCellToPlayGameOfLife : WhenUsingACellToPlayGameOfLife
         {
             [SetUp]
             public void SetupLifeWithAliveState()
             {
-                subject = CreateLife(LifeState.Alive);
+                subject = CreateCell(LifeState.Alive);
             }
 
             [Test]
             public void ShouldThrowAnArgumentOutOfRangeExceptionWhenOnlyOneNeighbourIsAdded()
             {
-                subject.AddNeighbours(CreateLife());
+                subject.AddNeighbours(CreateCell());
 
                 Action action = () => subject.CalculateLifeExpectancy();
 
@@ -175,9 +161,9 @@ namespace GameOfLife.Domain.UnitTests
             }
 
             [Test]
-            public void ShouldThrowAnArgumentOutOfRangeExceptionWhenOnlyTwoNeighbourIsAdded()
+            public void ShouldThrowAnArgumentOutOfRangeExceptionWhenOnlyTwoNeighboursIsAdded()
             {
-                subject.AddNeighbours(CreateLife(), CreateLife());
+                subject.AddNeighbours(CreateCell(), CreateCell());
 
                 Action action = () => subject.CalculateLifeExpectancy();
 
@@ -187,19 +173,18 @@ namespace GameOfLife.Domain.UnitTests
             [Test]
             public void ShouldCalculateStateAsDeadWhenNeighbourUnderPopulationOccurs()
             {
-                Life[] neighbours = GetOneALiveOnlyLives().ToArray();
+                Cell[] neighbours = GetOneALiveOnlyCells().ToArray();
                 subject.AddNeighbours(neighbours);
 
                 var actual = subject.CalculateLifeExpectancy();
 
                 actual.Should().Be(LifeState.Dead);
-
             }
 
             [Test]
             public void ShouldCalculateStateAsDeadWhenNeighbourOverPopulationOccurs()
             {
-                Life[] neighbours = GetMoreThanThreeALiveOnlyLives().ToArray();
+                Cell[] neighbours = GetMoreThanThreeALiveCells().ToArray();
                 subject.AddNeighbours(neighbours);
 
                 var actual = subject.CalculateLifeExpectancy();
@@ -210,7 +195,7 @@ namespace GameOfLife.Domain.UnitTests
             [Test]
             public void ShouldContinueToTheNextGenerationWhenThereAreTwoAliveNeighbours()
             {
-                Life[] neighbours = GetTwoAliveOnlyLives().ToArray();
+                Cell[] neighbours = GetTwoAliveOnlyCells().ToArray();
                 subject.AddNeighbours(neighbours);
 
                 var actual = subject.CalculateLifeExpectancy();
@@ -221,28 +206,53 @@ namespace GameOfLife.Domain.UnitTests
             [Test]
             public void ShouldContinueToTheNextGenerationWhenThereAreThreeAliveNeighbours()
             {
-                Life[] neighbours = GetThreeAliveOnlyLives().ToArray();
+                Cell[] neighbours = GetThreeAliveOnlyCells().ToArray();
                 subject.AddNeighbours(neighbours);
 
                 var actual = subject.CalculateLifeExpectancy();
 
                 actual.Should().Be(LifeState.Alive);
             }
+
+            private IEnumerable<Cell> GetOneALiveOnlyCells()
+            {
+                yield return CreateCell(LifeState.Alive);
+                yield return CreateCell();
+                yield return CreateCell();
+            }
+
+            private IEnumerable<Cell> GetTwoAliveOnlyCells()
+            {
+                yield return CreateCell(LifeState.Alive);
+                yield return CreateCell(LifeState.Alive);
+                yield return CreateCell();
+                yield return CreateCell();
+            }
+
+            private IEnumerable<Cell> GetMoreThanThreeALiveCells()
+            {
+                yield return CreateCell(LifeState.Alive);
+                yield return CreateCell(LifeState.Alive);
+                yield return CreateCell(LifeState.Alive);
+                yield return CreateCell(LifeState.Alive);
+                yield return CreateCell();
+                yield return CreateCell();
+            }
         }
 
         [TestFixture]
-        public class AndCalculatingTheLifeExpectancyOfADeadLife : WhenUsingALifeToPlayGameOfLife
+        public class AndCalculatingTheCellToPlayGameOfLifeExpectancyOfACellToPlayGameOfDeadLife : WhenUsingACellToPlayGameOfLife
         {
             [SetUp]
-            public void SetupLifeWithADeadStatus()
+            public void SetupLifeWithTheDefaultDeadStatus()
             {
-                subject = new Life(fixture.Create<Position>(), LifeState.Dead);
+                subject = new Cell(fixture.Create<Position>());
             }
 
             [Test]
-            public void ShouldReproduceALifeWhenThereAreThreeAliveSurroundingLives()
+            public void ShouldReproduceALifeWhenThereAreThreeAliveNeighbours()
             {
-                Life[] neighbours = GetThreeAliveOnlyLives().ToArray();
+                Cell[] neighbours = GetThreeAliveOnlyCells().ToArray();
                 subject.AddNeighbours(neighbours);
 
                 subject.CalculateLifeExpectancy();

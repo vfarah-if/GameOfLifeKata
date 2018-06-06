@@ -48,7 +48,7 @@
     </Compile>
     <Compile Include="GameOfLife.cs" />
     <Compile Include="IGameOfLife.cs" />
-    <Compile Include="Life.cs" />
+    <Compile Include="Cell.cs" />
     <Compile Include="LifeState.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

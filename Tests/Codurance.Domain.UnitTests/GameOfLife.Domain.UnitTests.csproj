@@ -77,7 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameOfLifeTestFixture.cs" />
-    <Compile Include="LifeTestFixture.cs" />
+    <Compile Include="CellTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
