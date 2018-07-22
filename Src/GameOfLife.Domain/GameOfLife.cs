@@ -68,7 +68,7 @@ namespace GameOfLife.Domain
                 }
                 var currentLife = Cells[position.Column, position.Row];
                 result.AppendFormat("| [{0}]({1},{2}) |",
-                    currentLife.CurrentLifeState == LifeState.Alive ? '+' : '-',
+                    currentLife.CurrentLifeState == LifeState.Alive ? '+' : ' ',
                     SpaceEquallyWithZeros(position.Column, ColumnSize),
                     SpaceEquallyWithZeros(position.Row, RowSize));
             });
